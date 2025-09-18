@@ -46,8 +46,49 @@ startCommand = "npm run deploy:safe && npm run start"
    - Voor productie: alleen `prisma migrate deploy`
 
 ## 🔧 Railway Settings te controleren:
-- **Predeploy Command:** LEEG laten (of verwijderen)
-- **Start Command:** `npm run start` (wordt automatisch aangeroepen via railway.toml)
+
+### ❌ KRITIEK - Verwijder deze setting:
+- **Build Command:** Verwijder `npx prisma db push` (als aanwezig)
+- **Pre-deploy Command:** Verwijder `npx prisma db push` (als aanwezig)
+
+### ✅ Correcte instellingen:
+- **Build Command:** `npm run build` (bevat nu veilige migratie)
+- **Start Command:** `npm run start`
+- **Deploy Command:** LEEG laten
+
+### 🆘 Als data nog steeds verdwijnt:
+1. Ga naar Railway Dashboard → Settings → Environment
+2. Zoek naar ALLE vermeldingen van `prisma db push`
+3. Verwijder of vervang door `prisma migrate deploy`
+4. Herstart deployment
 
 ## 📊 Data Recovery:
 Helaas is oude data verloren door de `db push` commands, maar vanaf nu blijft alles bewaard!
+
+## 🚨 EMERGENCY FIX - Als spelers nog steeds verdwijnen:
+
+### Methode 1: Railway Dashboard
+1. Ga naar Railway project dashboard
+2. Settings → Variables
+3. Zoek naar build/deploy commando's met `prisma db push`
+4. Vervang door `prisma migrate deploy`
+
+### Methode 2: Manual Override
+Voeg deze environment variable toe in Railway:
+```
+DATABASE_RESET_PROTECTION=true
+```
+
+### Methode 3: Build Command Fix
+Zet in Railway Build Command:
+```bash
+npm run build
+```
+(Niet `prisma db push` of vergelijkbaar)
+
+## 📋 Checklist voor Railway:
+- [ ] Geen `prisma db push` in Build Command
+- [ ] Geen `prisma db push` in Deploy Command
+- [ ] Geen `prisma db push` in Pre-deploy Command
+- [ ] Build Command is `npm run build`
+- [ ] Start Command is `npm run start`
