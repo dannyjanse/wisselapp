@@ -152,13 +152,13 @@ export default function NewGamePage() {
     if (toGroup === 1 && !fromGroup1) {
       setGameSetup(prev => ({
         ...prev,
-        group1: [...prev.group1.filter(p => p.id !== gameSetup.keeper2?.id), player].slice(0, 4),
+        group1: [...prev.group1, player],
         group2: prev.group2.filter(p => p.id !== player.id)
       }));
     } else if (toGroup === 2 && !fromGroup2) {
       setGameSetup(prev => ({
         ...prev,
-        group2: [...prev.group2.filter(p => p.id !== gameSetup.keeper1?.id), player].slice(0, 4),
+        group2: [...prev.group2, player],
         group1: prev.group1.filter(p => p.id !== player.id)
       }));
     }
