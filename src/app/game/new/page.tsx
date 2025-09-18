@@ -14,8 +14,10 @@ interface GameSetup {
   selectedPlayers: Player[];
   keeper1: Player | null; // Eerste helft keeper
   keeper2: Player | null; // Tweede helft keeper
-  group1: Player[]; // Groep 1 (inclusief keeper1 als veldspeler)
-  group2: Player[]; // Groep 2 (inclusief keeper2 als veldspeler)
+  group1: Player[]; // Groep 1 (2 keepers + 2 veldspelers)
+  group2: Player[]; // Groep 2 (4 veldspelers)
+  group1Positions: string[]; // 3 posities voor groep 1
+  group2Positions: string[]; // 3 posities voor groep 2
   step: 'select-players' | 'select-keepers' | 'create-groups' | 'assign-positions' | 'formation';
 }
 
@@ -28,6 +30,8 @@ export default function NewGamePage() {
     keeper2: null,
     group1: [],
     group2: [],
+    group1Positions: [],
+    group2Positions: [],
     step: 'select-players'
   });
 
@@ -92,11 +96,10 @@ export default function NewGamePage() {
     // Shuffle array
     const shuffled = [...remainingPlayers].sort(() => Math.random() - 0.5);
 
-    // Voor 6v6 met 8 spelers: 6 op veld (1 keeper + 5 veldspelers) + 2 wisselspelers
-    // Group 1: keeper1 + 5 veldspelers (startopstelling)
-    const group1 = [gameSetup.keeper1!, ...shuffled.slice(0, 5)];
-    // Group 2: keeper2 + 1 veldspeler (wisselbank - keeper2 wordt wissel omdat hij 2e helft keepert)
-    const group2 = [gameSetup.keeper2!, shuffled[5]];
+    // Groep 1: beide keepers + 2 veldspelers (4 personen)
+    const group1 = [gameSetup.keeper1!, gameSetup.keeper2!, ...shuffled.slice(0, 2)];
+    // Groep 2: overige 4 veldspelers
+    const group2 = shuffled.slice(2, 6);
 
     setGameSetup(prev => ({
       ...prev,
@@ -423,13 +426,206 @@ export default function NewGamePage() {
           </div>
         )}
 
-        {/* Stap 4: Posities toewijzen en formatie */}
+        {/* Stap 4: Posities toewijzen per groep */}
         {gameSetup.step === 'assign-positions' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-semibold mb-4">Posities Toewijzen</h2>
+            <p className="text-gray-600 mb-6">
+              Wijs 3 posities toe aan elke groep. Groep 1 bevat beide keepers, dus krijgt automatisch de keeper positie.
+            </p>
+
+            {/* Beschikbare posities */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-4">Beschikbare Posities (6v6)</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {[
+                  { id: 'keeper', name: 'Keeper 🥅', locked: true, group: 1 },
+                  { id: 'linksachter', name: 'Links Achter', locked: false, group: null },
+                  { id: 'rechtsachter', name: 'Rechts Achter', locked: false, group: null },
+                  { id: 'midden', name: 'Midden', locked: false, group: null },
+                  { id: 'linksvoor', name: 'Links Voor', locked: false, group: null },
+                  { id: 'rechtsvoor', name: 'Rechts Voor', locked: false, group: null }
+                ].map((position) => {
+                  const assignedToGroup1 = gameSetup.group1Positions.includes(position.id);
+                  const assignedToGroup2 = gameSetup.group2Positions.includes(position.id);
+                  const isAssigned = assignedToGroup1 || assignedToGroup2;
+
+                  return (
+                    <div
+                      key={position.id}
+                      className={`p-3 rounded border text-center ${
+                        position.locked
+                          ? 'bg-blue-100 border-blue-300 text-blue-800'
+                          : assignedToGroup1
+                          ? 'bg-blue-100 border-blue-300 text-blue-800'
+                          : assignedToGroup2
+                          ? 'bg-green-100 border-green-300 text-green-800'
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="font-medium">{position.name}</div>
+                      {position.locked && <div className="text-xs">Groep 1 (automatisch)</div>}
+                      {assignedToGroup1 && !position.locked && <div className="text-xs">Groep 1</div>}
+                      {assignedToGroup2 && <div className="text-xs">Groep 2</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Groep toewijzingen */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Groep 1 */}
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-blue-600">
+                  Groep 1 - Keepers + Veldspelers ({gameSetup.group1Positions.length}/3 posities)
+                </h3>
+                <div className="border-2 border-blue-300 rounded-lg p-4">
+                  <div className="mb-3">
+                    <div className="text-sm text-gray-600 mb-2">Spelers in deze groep:</div>
+                    {gameSetup.group1.map((player) => (
+                      <div key={player.id} className="text-sm">
+                        • {player.name}
+                        {player.id === gameSetup.keeper1?.id && ' (Keeper 1e helft)'}
+                        {player.id === gameSetup.keeper2?.id && ' (Keeper 2e helft)'}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="text-sm text-gray-600 mb-2">Toegewezen posities:</div>
+                  <div className="space-y-1">
+                    <div className="text-sm bg-blue-100 p-2 rounded">🥅 Keeper (automatisch)</div>
+                    {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
+                      .filter(pos => !gameSetup.group1Positions.includes(pos) && !gameSetup.group2Positions.includes(pos))
+                      .slice(0, 2)
+                      .map((position) => (
+                        <button
+                          key={position}
+                          onClick={() => {
+                            if (gameSetup.group1Positions.length < 3) {
+                              setGameSetup(prev => ({
+                                ...prev,
+                                group1Positions: [...prev.group1Positions, position]
+                              }));
+                            }
+                          }}
+                          disabled={gameSetup.group1Positions.length >= 3}
+                          className="w-full text-left text-sm bg-gray-50 hover:bg-blue-50 p-2 rounded border"
+                        >
+                          + {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </button>
+                      ))}
+
+                    {gameSetup.group1Positions.filter(pos => pos !== 'keeper').map((position) => (
+                      <div key={position} className="text-sm bg-blue-100 p-2 rounded flex justify-between items-center">
+                        {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
+                        <button
+                          onClick={() => {
+                            setGameSetup(prev => ({
+                              ...prev,
+                              group1Positions: prev.group1Positions.filter(p => p !== position)
+                            }));
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Groep 2 */}
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-green-600">
+                  Groep 2 - Veldspelers ({gameSetup.group2Positions.length}/3 posities)
+                </h3>
+                <div className="border-2 border-green-300 rounded-lg p-4">
+                  <div className="mb-3">
+                    <div className="text-sm text-gray-600 mb-2">Spelers in deze groep:</div>
+                    {gameSetup.group2.map((player) => (
+                      <div key={player.id} className="text-sm">• {player.name}</div>
+                    ))}
+                  </div>
+
+                  <div className="text-sm text-gray-600 mb-2">Toegewezen posities:</div>
+                  <div className="space-y-1">
+                    {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
+                      .filter(pos => !gameSetup.group1Positions.includes(pos) && !gameSetup.group2Positions.includes(pos))
+                      .slice(0, 3)
+                      .map((position) => (
+                        <button
+                          key={position}
+                          onClick={() => {
+                            if (gameSetup.group2Positions.length < 3) {
+                              setGameSetup(prev => ({
+                                ...prev,
+                                group2Positions: [...prev.group2Positions, position]
+                              }));
+                            }
+                          }}
+                          disabled={gameSetup.group2Positions.length >= 3}
+                          className="w-full text-left text-sm bg-gray-50 hover:bg-green-50 p-2 rounded border"
+                        >
+                          + {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </button>
+                      ))}
+
+                    {gameSetup.group2Positions.map((position) => (
+                      <div key={position} className="text-sm bg-green-100 p-2 rounded flex justify-between items-center">
+                        {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
+                        <button
+                          onClick={() => {
+                            setGameSetup(prev => ({
+                              ...prev,
+                              group2Positions: prev.group2Positions.filter(p => p !== position)
+                            }));
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setGameSetup(prev => ({ ...prev, step: 'create-groups' }))}
+                className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+              >
+                ← Terug
+              </button>
+              <button
+                onClick={() => {
+                  if (gameSetup.group1Positions.length >= 2 && gameSetup.group2Positions.length >= 3) {
+                    setGameSetup(prev => ({
+                      ...prev,
+                      group1Positions: ['keeper', ...prev.group1Positions.filter(p => p !== 'keeper')],
+                      step: 'formation'
+                    }));
+                  }
+                }}
+                disabled={gameSetup.group1Positions.length < 2 || gameSetup.group2Positions.length < 3}
+                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+              >
+                Naar Formatie →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Stap 5: Finale formatie weergave */}
+        {gameSetup.step === 'formation' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">Voetbalveld Opstelling</h2>
               <p className="text-gray-600 mb-6">
-                Groep 1 start de wedstrijd. {gameSetup.keeper2?.name} (keeper 2e helft) start als wissel.
+                Startopstelling: {gameSetup.keeper1?.name} keept. {gameSetup.keeper2?.name} start als wissel (speelt veldspeler in 2e helft).
               </p>
 
               {/* Voetbalveld visualisatie */}
@@ -501,14 +697,28 @@ export default function NewGamePage() {
                     </div>
 
                     {/* Wisselspelers (rechts van het veld) */}
-                    <div className="absolute top-16 -right-20">
+                    <div className="absolute top-16 -right-24">
                       <div className="text-sm font-medium mb-2">Wisselbank</div>
-                      <div className="space-y-2">
-                        <div className="bg-gray-300 border-2 border-gray-500 rounded-full w-8 h-8 flex items-center justify-center text-xs">
-                          W
+                      <div className="space-y-3">
+                        {/* Keeper2 als wissel */}
+                        <div className="text-center">
+                          <div className="bg-orange-300 border-2 border-orange-500 rounded-full w-8 h-8 flex items-center justify-center text-xs">
+                            K2
+                          </div>
+                          <div className="text-xs font-medium w-16 mt-1">
+                            {gameSetup.keeper2?.name}
+                          </div>
+                          <div className="text-xs text-gray-600">Groep 1</div>
                         </div>
-                        <div className="text-xs text-center font-medium w-16">
-                          {gameSetup.keeper2?.name}
+                        {/* Veldspeler wissel uit groep 2 */}
+                        <div className="text-center">
+                          <div className="bg-gray-300 border-2 border-gray-500 rounded-full w-8 h-8 flex items-center justify-center text-xs">
+                            W
+                          </div>
+                          <div className="text-xs font-medium w-16 mt-1">
+                            {gameSetup.group2[3]?.name || 'Speler'}
+                          </div>
+                          <div className="text-xs text-gray-600">Groep 2</div>
                         </div>
                       </div>
                     </div>
@@ -521,44 +731,58 @@ export default function NewGamePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <h3 className="text-lg font-medium mb-3 text-blue-600">
-                    🏃‍♂️ Groep 1 - Op het Veld (Eerste Helft)
+                    👥 Groep 1 - Keepers + Veldspelers
                   </h3>
                   <div className="space-y-2">
-                    {gameSetup.group1.map((player, index) => (
+                    {gameSetup.group1.map((player) => (
                       <div key={player.id} className="bg-blue-100 border border-blue-200 rounded p-2 flex justify-between">
                         <div>
                           <span className="font-medium">{player.name}</span>
                           {player.number && <span className="text-gray-600 ml-2">#{player.number}</span>}
                         </div>
                         <div className="text-sm text-blue-600">
-                          {player.id === gameSetup.keeper1?.id ? '🥅 Keeper' :
-                           index === 1 ? 'Links Achter' :
-                           index === 2 ? 'Rechts Achter' :
-                           index === 3 ? 'Midden' :
-                           index === 4 ? 'Links Voor' :
-                           index === 5 ? 'Rechts Voor' : 'Veldspeler'}
+                          {player.id === gameSetup.keeper1?.id ? '🥅 Keeper 1e helft' :
+                           player.id === gameSetup.keeper2?.id ? '🥅 Keeper 2e helft (start wissel)' :
+                           'Veldspeler'}
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-blue-50 rounded">
+                    <div className="text-sm font-medium text-blue-800">Toegewezen posities:</div>
+                    <div className="text-sm text-blue-600">
+                      {gameSetup.group1Positions.map(pos =>
+                        pos === 'keeper' ? '🥅 Keeper' :
+                        pos.charAt(0).toUpperCase() + pos.slice(1).replace(/([A-Z])/g, ' $1')
+                      ).join(', ')}
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium mb-3 text-green-600">
-                    🪑 Groep 2 - Wisselbank (Eerste Helft)
+                    👥 Groep 2 - Veldspelers
                   </h3>
                   <div className="space-y-2">
-                    {gameSetup.group2.map((player) => (
-                      <div key={player.id} className="bg-gray-100 border border-gray-200 rounded p-2 flex justify-between">
+                    {gameSetup.group2.map((player, index) => (
+                      <div key={player.id} className="bg-green-100 border border-green-200 rounded p-2 flex justify-between">
                         <div>
                           <span className="font-medium">{player.name}</span>
                           {player.number && <span className="text-gray-600 ml-2">#{player.number}</span>}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {player.id === gameSetup.keeper2?.id ? '🥅 Keeper 2e helft' : 'Wissel'}
+                        <div className="text-sm text-green-600">
+                          {index === 3 ? 'Start wissel' : 'Veldspeler'}
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-green-50 rounded">
+                    <div className="text-sm font-medium text-green-800">Toegewezen posities:</div>
+                    <div className="text-sm text-green-600">
+                      {gameSetup.group2Positions.map(pos =>
+                        pos.charAt(0).toUpperCase() + pos.slice(1).replace(/([A-Z])/g, ' $1')
+                      ).join(', ')}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -567,10 +791,10 @@ export default function NewGamePage() {
               <div className="bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
                 <h4 className="font-medium text-yellow-800 mb-2">🔄 Wisselsysteem</h4>
                 <ul className="text-sm text-yellow-700 space-y-1">
-                  <li>• Elke 5 minuten wisselen de groepen automatisch</li>
-                  <li>• {gameSetup.keeper1?.name} is keeper in de eerste helft</li>
-                  <li>• {gameSetup.keeper2?.name} is keeper in de tweede helft</li>
-                  <li>• Groep 1 start op het veld, Groep 2 op de bank</li>
+                  <li>• <strong>1e helft:</strong> {gameSetup.keeper1?.name} keept, {gameSetup.keeper2?.name} start als wissel</li>
+                  <li>• <strong>2e helft:</strong> {gameSetup.keeper2?.name} keept, {gameSetup.keeper1?.name} start als wissel</li>
+                  <li>• Groep 1 wisselt over {gameSetup.group1Positions.length} posities, Groep 2 over {gameSetup.group2Positions.length} posities</li>
+                  <li>• Elke 5 minuten wisselen binnen elke groep (3 op veld, 1 wissel per groep)</li>
                 </ul>
               </div>
 
