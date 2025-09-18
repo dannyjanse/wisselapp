@@ -292,7 +292,7 @@ export default function NewGamePage() {
                     }
                   }}
                   disabled={
-                    (gameSetup.keeper1 && gameSetup.keeper2) ||
+                    (!!gameSetup.keeper1 && !!gameSetup.keeper2) ||
                     (gameSetup.keeper1?.id === player.id) ||
                     (gameSetup.keeper2?.id === player.id)
                   }
