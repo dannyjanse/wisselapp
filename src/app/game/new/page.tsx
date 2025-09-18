@@ -39,6 +39,15 @@ export default function NewGamePage() {
     fetchActivePlayers();
   }, []);
 
+  useEffect(() => {
+    if (players.length > 0) {
+      setGameSetup(prev => ({
+        ...prev,
+        selectedPlayers: players
+      }));
+    }
+  }, [players]);
+
   const fetchActivePlayers = async () => {
     try {
       const response = await fetch('/api/players');
@@ -60,7 +69,7 @@ export default function NewGamePage() {
         ...prev,
         selectedPlayers: prev.selectedPlayers.filter(p => p.id !== player.id)
       }));
-    } else if (gameSetup.selectedPlayers.length < 8) {
+    } else {
       setGameSetup(prev => ({
         ...prev,
         selectedPlayers: [...prev.selectedPlayers, player]
@@ -69,8 +78,16 @@ export default function NewGamePage() {
   };
 
   const proceedToKeepers = () => {
-    if (gameSetup.selectedPlayers.length === 8) {
+    const selectedCount = gameSetup.selectedPlayers.length;
+
+    if (selectedCount === 8) {
       setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
+    } else if (selectedCount === 6) {
+      alert('6 spelers geselecteerd: geen wissels en dus geen wisselbeleid nodig.');
+    } else if (selectedCount === 7 || selectedCount === 9) {
+      alert('Wisselbeleid voor dit aantal spelers wordt nog ontwikkeld.');
+    } else if (selectedCount >= 10) {
+      alert('Dat zijn veel te veel wissels man, reduceer het aantal spelers.');
     }
   };
 
@@ -84,7 +101,26 @@ export default function NewGamePage() {
 
   const proceedToGroups = () => {
     if (gameSetup.keeper1 && gameSetup.keeper2) {
-      setGameSetup(prev => ({ ...prev, step: 'create-groups' }));
+      const remainingPlayers = gameSetup.selectedPlayers.filter(
+        p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id
+      );
+
+      // Default verdeling: beide keepers + 2 veldspelers in groep 1, rest in groep 2
+      const group1 = [gameSetup.keeper1, gameSetup.keeper2, ...remainingPlayers.slice(0, 2)];
+      const group2 = remainingPlayers.slice(2, 6);
+
+      // Auto-assign posities
+      const group1Positions = ['keeper', 'linksachter', 'linksvoor'];
+      const group2Positions = ['rechtsachter', 'midden', 'rechtsvoor'];
+
+      setGameSetup(prev => ({
+        ...prev,
+        step: 'create-groups',
+        group1,
+        group2,
+        group1Positions,
+        group2Positions
+      }));
     }
   };
 
@@ -159,63 +195,44 @@ export default function NewGamePage() {
         {gameSetup.step === 'select-players' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
-              Selecteer 8 Spelers voor de Wedstrijd
+              Selecteer Spelers voor de Wedstrijd
             </h2>
             <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
-              Kies {8 - gameSetup.selectedPlayers.length} {8 - gameSetup.selectedPlayers.length === 1 ? 'speler' : 'spelers'} om deel te nemen aan de wedstrijd.
+              {gameSetup.selectedPlayers.length} spelers geselecteerd. Aantal bepaalt de wisselstrategie.
             </p>
 
             <div className="mb-4 sm:mb-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
                 <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                  Geselecteerde Spelers ({gameSetup.selectedPlayers.length}/8)
+                  Geselecteerde Spelers ({gameSetup.selectedPlayers.length})
                 </h3>
-                {gameSetup.selectedPlayers.length === 8 && (
-                  <button
-                    onClick={proceedToKeepers}
-                    className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
-                  >
-                    Verder naar Keepers →
-                  </button>
-                )}
+                <button
+                  onClick={proceedToKeepers}
+                  className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                >
+                  Verder naar Stap 2/4 →
+                </button>
               </div>
-
-              {gameSetup.selectedPlayers.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  {gameSetup.selectedPlayers.map((player) => (
-                    <div key={player.id} className="bg-blue-100 border-2 border-blue-300 rounded-lg p-2 sm:p-3 text-center shadow-md">
-                      <div className="font-bold text-gray-900 text-xs sm:text-sm">{player.name}</div>
-                      {player.number && <div className="text-xs text-gray-700 font-medium">#{player.number}</div>}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm sm:text-base text-gray-700 font-medium mb-3 sm:mb-4 text-center py-3 sm:py-4 bg-gray-50 rounded-lg">Nog geen spelers geselecteerd</div>
-              )}
             </div>
 
-            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-900">Beschikbare Spelers</h3>
+            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-900">Spelers (klik om te deselecteren)</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {players.map((player) => {
                 const isSelected = gameSetup.selectedPlayers.some(p => p.id === player.id);
-                const canSelect = !isSelected && gameSetup.selectedPlayers.length < 8;
 
                 return (
                   <button
                     key={player.id}
                     onClick={() => togglePlayerSelection(player)}
-                    disabled={!isSelected && gameSetup.selectedPlayers.length >= 8}
                     className={`p-3 sm:p-4 rounded-lg border-2 text-left transition-all transform shadow-md ${
                       isSelected
                         ? 'bg-blue-200 border-blue-400 text-blue-900 scale-95'
-                        : canSelect
-                        ? 'bg-white border-gray-300 hover:border-blue-400 hover:bg-blue-50 hover:scale-105 text-gray-900'
-                        : 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
                     }`}
                   >
                     <div className="font-bold text-sm sm:text-base">{player.name}</div>
-                    {player.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">Rugnummer: {player.number}</div>}
                     {isSelected && <div className="text-xs sm:text-sm text-blue-700 font-bold mt-1">✓ Geselecteerd</div>}
+                    {!isSelected && <div className="text-xs sm:text-sm text-gray-600 font-medium mt-1">Gedeselecteerd</div>}
                   </button>
                 );
               })}
@@ -334,23 +351,8 @@ export default function NewGamePage() {
               Klik op de knoppen om spelers te verplaatsen tussen groepen. Groep 1 (blauw) bevat beide keepers + 2 veldspelers. Groep 2 (groen) bevat 4 veldspelers.
             </p>
 
-            <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button
-                onClick={createRandomGroups}
-                className="bg-indigo-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-indigo-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base"
-              >
-                🎲 Willekeurige Verdeling
-              </button>
-              <button
-                onClick={() => setGameSetup(prev => ({ ...prev, group1: [prev.keeper1!, prev.keeper2!], group2: [] }))}
-                className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base"
-              >
-                🥅 Start met Keepers in Groep 1
-              </button>
-            </div>
 
-            {gameSetup.group1.length > 0 && gameSetup.group2.length > 0 && (
-              <>
+            <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-6">
                   <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 sm:p-4">
                     <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-blue-800">
@@ -443,8 +445,7 @@ export default function NewGamePage() {
                     </button>
                   </div>
                 )}
-              </>
-            )}
+            </>
           </div>
         )}
 

@@ -24,10 +24,10 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border border-gray-200 rounded-lg p-4">
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nieuwe Wedstrijd (8 spelers)
+                Start Wedstrijd
               </h3>
               <p className="text-gray-600 mb-4">
-                Start een nieuwe wedstrijd met 8 spelers en 2 wisselgroepen.
+                Start een nieuwe wedstrijd. Aantal spelers bepaalt de wisselstrategie.
               </p>
               <Link href="/game/new" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-block">
                 Wedstrijd Starten
