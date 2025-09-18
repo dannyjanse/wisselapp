@@ -24,6 +24,10 @@ interface GameSetup {
 export default function NewGamePage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
+  const [swapMode, setSwapMode] = useState<{active: boolean, firstPlayer: {playerId: string, position: string, group: number} | null}>({
+    active: false,
+    firstPlayer: null
+  });
   const [gameSetup, setGameSetup] = useState<GameSetup>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('gameSetup');
@@ -161,6 +165,54 @@ export default function NewGamePage() {
       group2,
       step: 'assign-positions'
     }));
+  };
+
+  const handlePlayerSwap = (playerId: string, position: string, groupNumber: number) => {
+    if (!swapMode.active) {
+      // Start swap mode
+      setSwapMode({
+        active: true,
+        firstPlayer: { playerId, position, group: groupNumber }
+      });
+    } else {
+      // Complete swap
+      const firstPlayer = swapMode.firstPlayer!;
+
+      // Only allow swapping within same group
+      if (firstPlayer.group !== groupNumber) {
+        alert('Je kunt alleen spelers binnen dezelfde groep wisselen!');
+        setSwapMode({ active: false, firstPlayer: null });
+        return;
+      }
+
+      if (firstPlayer.playerId === playerId) {
+        // Clicked same player - cancel
+        setSwapMode({ active: false, firstPlayer: null });
+        return;
+      }
+
+      // Perform the swap
+      setGameSetup(prev => {
+        const isGroup1 = groupNumber === 1;
+        const positions = isGroup1 ? [...prev.group1Positions] : [...prev.group2Positions];
+
+        const firstIndex = positions.indexOf(firstPlayer.position);
+        const secondIndex = positions.indexOf(position);
+
+        if (firstIndex !== -1 && secondIndex !== -1) {
+          // Swap positions
+          [positions[firstIndex], positions[secondIndex]] = [positions[secondIndex], positions[firstIndex]];
+        }
+
+        return {
+          ...prev,
+          group1Positions: isGroup1 ? positions : prev.group1Positions,
+          group2Positions: isGroup1 ? prev.group2Positions : positions
+        };
+      });
+
+      setSwapMode({ active: false, firstPlayer: null });
+    }
   };
 
   const movePlayerToGroup = (player: Player, toGroup: 1 | 2) => {
@@ -731,12 +783,30 @@ export default function NewGamePage() {
                             const pos = positions[position as keyof typeof positions];
                             if (!pos) return null;
 
+                            const playerColorClasses = isGroup1Position
+                              ? 'bg-blue-500 border-blue-700'
+                              : 'bg-green-500 border-green-700';
+
+                            const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
+                            const groupNumber = isGroup1Position ? 1 : 2;
+
                             return (
-                              <div key={`${position}-${player.id}`} className="absolute" style={pos}>
-                                <div className={`bg-${color}-500 border-2 border-${color}-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
+                              <div
+                                key={`${position}-${player.id}`}
+                                className="absolute cursor-pointer"
+                                style={pos}
+                                onClick={() => handlePlayerSwap(player.id, position, groupNumber)}
+                              >
+                                <div className={`${playerColorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
+                                  isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                                } ${
+                                  swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                                }`}>
                                   {pos.label}
                                 </div>
-                                <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px]">
+                                <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] ${
+                                  isFirstSelected ? 'bg-yellow-300' : 'bg-yellow-100'
+                                }`}>
                                   {player.name}
                                 </div>
                               </div>
@@ -765,7 +835,7 @@ export default function NewGamePage() {
                     </div>
                     {/* Veldspeler wissel uit groep 2 */}
                     <div className="text-center">
-                      <div className="bg-green-400 border-2 border-green-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
+                      <div className="bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
                         W
                       </div>
                       <div className="text-xs font-bold mt-1 text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow">
