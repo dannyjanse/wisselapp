@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,9 +29,9 @@ export default function Home() {
               <p className="text-gray-600 mb-4">
                 Start een nieuwe wedstrijd met 8 spelers en 2 wisselgroepen.
               </p>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+              <Link href="/game/new" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-block">
                 Wedstrijd Starten
-              </button>
+              </Link>
             </div>
 
             <div className="border border-gray-200 rounded-lg p-4">
@@ -39,9 +41,9 @@ export default function Home() {
               <p className="text-gray-600 mb-4">
                 Voeg spelers toe en beheer je spelerslijst.
               </p>
-              <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+              <Link href="/players" className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors inline-block">
                 Spelers Beheren
-              </button>
+              </Link>
             </div>
           </div>
         </div>
