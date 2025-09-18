@@ -199,8 +199,11 @@ export default function LiveMatchPage() {
 
       // Handle half-time
       if (isHalfTime) {
-        newState.half = 2;
-        newState.currentKeeper = prev.currentKeeper === 1 ? 2 : 1;
+        newState = {
+          ...newState,
+          half: 2,
+          currentKeeper: prev.currentKeeper === 1 ? 2 : 1
+        };
         alert(`Rust! Keepers wisselen: ${prev.currentKeeper === 1 ? prev.keeper2?.name : prev.keeper1?.name} gaat keepen in de 2e helft.`);
       }
 

@@ -146,26 +146,6 @@ export default function NewGamePage() {
     }
   };
 
-  const createRandomGroups = () => {
-    const remainingPlayers = gameSetup.selectedPlayers.filter(
-      p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id
-    );
-
-    // Shuffle array
-    const shuffled = [...remainingPlayers].sort(() => Math.random() - 0.5);
-
-    // Groep 1: beide keepers + 2 veldspelers (4 personen)
-    const group1 = [gameSetup.keeper1!, gameSetup.keeper2!, ...shuffled.slice(0, 2)];
-    // Groep 2: overige 4 veldspelers
-    const group2 = shuffled.slice(2, 6);
-
-    setGameSetup(prev => ({
-      ...prev,
-      group1,
-      group2,
-      step: 'assign-positions'
-    }));
-  };
 
   const handlePlayerSwap = (playerId: string, position: string, groupNumber: number) => {
     if (!swapMode.active) {
@@ -541,7 +521,6 @@ export default function NewGamePage() {
                 ].map((position) => {
                   const assignedToGroup1 = gameSetup.group1Positions.includes(position.id);
                   const assignedToGroup2 = gameSetup.group2Positions.includes(position.id);
-                  const isAssigned = assignedToGroup1 || assignedToGroup2;
 
                   return (
                     <div
@@ -759,7 +738,7 @@ export default function NewGamePage() {
                           </div>
 
                           {/* Dynamically position other players based on their assigned positions */}
-                          {gameSetup.group1Positions.concat(gameSetup.group2Positions).map((position, index) => {
+                          {gameSetup.group1Positions.concat(gameSetup.group2Positions).map((position) => {
                             if (position === 'keeper') return null;
 
                             const isGroup1Position = gameSetup.group1Positions.includes(position);
@@ -770,8 +749,6 @@ export default function NewGamePage() {
                             );
 
                             if (!player) return null;
-
-                            const color = isGroup1Position ? 'blue' : 'green';
                             const positions = {
                               'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
                               'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
