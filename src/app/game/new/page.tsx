@@ -930,7 +930,15 @@ export default function NewGamePage() {
                   ← Terug
                 </button>
                 <button
-                  onClick={() => alert('Wedstrijd starten komt in volgende update!')}
+                  onClick={() => {
+                    // Save final setup to localStorage
+                    const matchSetup = {
+                      ...gameSetup,
+                      timestamp: Date.now()
+                    };
+                    localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
+                    window.location.href = '/game/live';
+                  }}
                   className="bg-green-600 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg hover:bg-green-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base order-1 sm:order-2"
                 >
                   🚀 Wedstrijd Starten
