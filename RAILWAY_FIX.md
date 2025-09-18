@@ -101,6 +101,23 @@ Als je ziet: "Can't reach database server during build"
 - De migratie gebeurt nu tijdens START (niet BUILD)
 - Railway zal nu succesvol builden en dan veilig migreren
 
+### 🔴 CRITICAL DISCOVERY - RAILWAY LOGS ANALYSIS:
+**Railway logs tonen:** "Database reset successful" + "Applying migration 20250918110754_init"
+
+**PROBLEEM:** Railway voert INIT migration opnieuw uit = DATABASE RESET!
+
+**OPLOSSING:**
+```bash
+# Nieuwe start command:
+prisma migrate resolve --applied 20250918110754_init && prisma migrate deploy && next start
+```
+
+**Wat dit doet:**
+1. Mark init migration als "already applied"
+2. Deploy alleen NIEUWE migrations
+3. Start app
+4. **GEEN DATABASE RESET MEER!**
+
 ## 📋 Checklist voor Railway:
 - [ ] Geen `prisma db push` in Build Command
 - [ ] Geen `prisma db push` in Deploy Command
