@@ -24,15 +24,27 @@ interface GameSetup {
 export default function NewGamePage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
-  const [gameSetup, setGameSetup] = useState<GameSetup>({
-    selectedPlayers: [],
-    keeper1: null,
-    keeper2: null,
-    group1: [],
-    group2: [],
-    group1Positions: [],
-    group2Positions: [],
-    step: 'select-players'
+  const [gameSetup, setGameSetup] = useState<GameSetup>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('gameSetup');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved game setup:', e);
+        }
+      }
+    }
+    return {
+      selectedPlayers: [],
+      keeper1: null,
+      keeper2: null,
+      group1: [],
+      group2: [],
+      group1Positions: [],
+      group2Positions: [],
+      step: 'select-players'
+    };
   });
 
   useEffect(() => {
@@ -40,13 +52,19 @@ export default function NewGamePage() {
   }, []);
 
   useEffect(() => {
-    if (players.length > 0) {
+    if (players.length > 0 && gameSetup.selectedPlayers.length === 0) {
       setGameSetup(prev => ({
         ...prev,
         selectedPlayers: players
       }));
     }
-  }, [players]);
+  }, [players, gameSetup.selectedPlayers.length]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('gameSetup', JSON.stringify(gameSetup));
+    }
+  }, [gameSetup]);
 
   const fetchActivePlayers = async () => {
     try {
@@ -652,8 +670,8 @@ export default function NewGamePage() {
               </p>
 
               {/* Voetbalveld visualisatie */}
-              <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6 overflow-x-auto">
-                <div className="relative w-full max-w-[240px] sm:max-w-[300px] mx-auto" style={{ aspectRatio: '2/3', minWidth: '200px' }}>
+              <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
+                <div className="relative w-full max-w-[280px] sm:max-w-[320px] mx-auto" style={{ aspectRatio: '2/3', minWidth: '240px' }}>
                   {/* Veld */}
                   <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
 
@@ -661,91 +679,100 @@ export default function NewGamePage() {
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
 
-                    {/* Keeper (Groep 1) - Nu onderaan */}
-                    <div className="absolute bottom-3 sm:bottom-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        🥅
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow max-w-[50px] sm:max-w-[60px] truncate">
-                        {gameSetup.keeper1?.name}
-                      </div>
-                    </div>
+                    {/* Render players based on position assignments */}
+                    {(() => {
+                      const getPlayerByPosition = (group: Player[], positions: string[], targetPosition: string) => {
+                        const posIndex = positions.indexOf(targetPosition);
+                        if (posIndex === -1) return null;
 
-                    {/* Verdedigers (achterste lijn) - Nu net boven keeper */}
-                    <div className="absolute bottom-12 sm:bottom-16 left-4 sm:left-6">
-                      <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        LA
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow w-8 sm:w-12 truncate">
-                        {gameSetup.group1.filter(p => p.id !== gameSetup.keeper1?.id)[0]?.name || 'Speler'}
-                      </div>
-                    </div>
+                        if (targetPosition === 'keeper') {
+                          return gameSetup.keeper1;
+                        }
 
-                    <div className="absolute bottom-12 sm:bottom-16 right-4 sm:right-6">
-                      <div className="bg-green-500 border-2 border-green-700 rounded-full w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        RA
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow w-8 sm:w-12 truncate">
-                        {gameSetup.group2[0]?.name || 'Speler'}
-                      </div>
-                    </div>
+                        const nonKeepers = group.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id);
+                        const adjustedIndex = targetPosition === 'keeper' ? -1 : positions.slice(0, posIndex).filter(p => p !== 'keeper').length;
+                        return nonKeepers[adjustedIndex] || null;
+                      };
 
-                    {/* Middenveld - Group 2 player */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-green-500 border-2 border-green-700 rounded-full w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        M
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow w-8 sm:w-12 truncate">
-                        {gameSetup.group2[1]?.name || 'Speler'}
-                      </div>
-                    </div>
-
-                    {/* Aanvallers - Nu bovenaan */}
-                    <div className="absolute top-12 sm:top-16 left-4 sm:left-6">
-                      <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        LV
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow w-8 sm:w-12 truncate">
-                        {gameSetup.group1.filter(p => p.id !== gameSetup.keeper1?.id)[1]?.name || 'Speler'}
-                      </div>
-                    </div>
-
-                    <div className="absolute top-12 sm:top-16 right-4 sm:right-6">
-                      <div className="bg-green-500 border-2 border-green-700 rounded-full w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                        RV
-                      </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-white px-1 py-0.5 rounded shadow w-8 sm:w-12 truncate">
-                        {gameSetup.group2[2]?.name || 'Speler'}
-                      </div>
-                    </div>
-
-                    {/* Wisselspelers - Nu zichtbaar rechts van veld */}
-                    <div className="absolute top-6 sm:top-8 -right-12 sm:-right-16">
-                      <div className="text-xs font-bold mb-1 text-gray-900">Wissels</div>
-                      <div className="space-y-1 sm:space-y-2">
-                        {/* Keeper2 als wissel */}
-                        <div className="text-center">
-                          <div className="bg-blue-400 border-2 border-blue-600 rounded-full w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold text-white shadow">
-                            K2
+                      return (
+                        <>
+                          {/* Keeper - altijd onderaan */}
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                            <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                              🥅
+                            </div>
+                            <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px]">
+                              {gameSetup.keeper1?.name || 'Keeper'}
+                            </div>
                           </div>
-                          <div className="text-xs font-bold w-8 sm:w-12 mt-0.5 text-gray-900 bg-white px-0.5 py-0.5 rounded shadow truncate">
-                            {gameSetup.keeper2?.name}
-                          </div>
-                          <div className="text-xs text-blue-600 font-medium">G1</div>
-                        </div>
-                        {/* Veldspeler wissel uit groep 2 */}
-                        <div className="text-center">
-                          <div className="bg-green-400 border-2 border-green-600 rounded-full w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold text-white shadow">
-                            W
-                          </div>
-                          <div className="text-xs font-bold w-8 sm:w-12 mt-0.5 text-gray-900 bg-white px-0.5 py-0.5 rounded shadow truncate">
-                            {gameSetup.group2[3]?.name || 'Speler'}
-                          </div>
-                          <div className="text-xs text-green-600 font-medium">G2</div>
-                        </div>
-                      </div>
-                    </div>
 
+                          {/* Dynamically position other players based on their assigned positions */}
+                          {gameSetup.group1Positions.concat(gameSetup.group2Positions).map((position, index) => {
+                            if (position === 'keeper') return null;
+
+                            const isGroup1Position = gameSetup.group1Positions.includes(position);
+                            const player = getPlayerByPosition(
+                              isGroup1Position ? gameSetup.group1 : gameSetup.group2,
+                              isGroup1Position ? gameSetup.group1Positions : gameSetup.group2Positions,
+                              position
+                            );
+
+                            if (!player) return null;
+
+                            const color = isGroup1Position ? 'blue' : 'green';
+                            const positions = {
+                              'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+                              'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+                              'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+                              'linksvoor': { top: '15%', left: '15%', label: 'LV' },
+                              'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
+                            };
+
+                            const pos = positions[position as keyof typeof positions];
+                            if (!pos) return null;
+
+                            return (
+                              <div key={`${position}-${player.id}`} className="absolute" style={pos}>
+                                <div className={`bg-${color}-500 border-2 border-${color}-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
+                                  {pos.label}
+                                </div>
+                                <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px]">
+                                  {player.name}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
+
+                  </div>
+                </div>
+
+                {/* Wisselspelers - Nu onder het veld */}
+                <div className="mt-4 text-center">
+                  <div className="text-sm font-bold mb-2 text-gray-900">Wisselbank</div>
+                  <div className="flex justify-center space-x-4 sm:space-x-6">
+                    {/* Keeper2 als wissel */}
+                    <div className="text-center">
+                      <div className="bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
+                        K2
+                      </div>
+                      <div className="text-xs font-bold mt-1 text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow">
+                        {gameSetup.keeper2?.name || 'Keeper 2'}
+                      </div>
+                      <div className="text-xs text-blue-600 font-medium">Groep 1</div>
+                    </div>
+                    {/* Veldspeler wissel uit groep 2 */}
+                    <div className="text-center">
+                      <div className="bg-green-400 border-2 border-green-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
+                        W
+                      </div>
+                      <div className="text-xs font-bold mt-1 text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow">
+                        {gameSetup.group2.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id)[3]?.name || 'Wissel'}
+                      </div>
+                      <div className="text-xs text-green-600 font-medium">Groep 2</div>
+                    </div>
                   </div>
                 </div>
               </div>
