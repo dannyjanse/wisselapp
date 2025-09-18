@@ -10,7 +10,8 @@
     "lint": "eslint",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy:safe": "prisma migrate deploy && prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
