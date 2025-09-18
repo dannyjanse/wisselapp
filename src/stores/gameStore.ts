@@ -20,7 +20,7 @@ interface GameState {
   swapPositions: (pos1: Position, pos2: Position) => void
 }
 
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<GameState>((set) => ({
   currentGame: null,
   timer: {
     gameTime: 0,

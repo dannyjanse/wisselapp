@@ -9,7 +9,7 @@ export async function PATCH(
     const body = await request.json();
     const { active, name, number } = body;
 
-    const updateData: any = {};
+    const updateData: { active?: boolean; name?: string; number?: number | null } = {};
     if (active !== undefined) updateData.active = active;
     if (name !== undefined) updateData.name = name.trim();
     if (number !== undefined) updateData.number = number;

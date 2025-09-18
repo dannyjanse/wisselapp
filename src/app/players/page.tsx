@@ -168,7 +168,7 @@ export default function PlayersPage() {
 
           {players.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
-              Nog geen spelers toegevoegd. Klik op "Nieuwe Speler" om te beginnen.
+              Nog geen spelers toegevoegd. Klik op &quot;Nieuwe Speler&quot; om te beginnen.
             </div>
           ) : (
             <div className="overflow-x-auto">
