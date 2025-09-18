@@ -52,9 +52,18 @@ startCommand = "npm run deploy:safe && npm run start"
 - **Pre-deploy Command:** Verwijder `npx prisma db push` (als aanwezig)
 
 ### ✅ Correcte instellingen:
-- **Build Command:** `npm run build` (bevat nu veilige migratie)
-- **Start Command:** `npm run start`
+- **Build Command:** `npm run build` (alleen build, geen database)
+- **Start Command:** `npm run start` (bevat nu veilige migratie)
 - **Deploy Command:** LEEG laten
+
+### 🔧 Hoe het nu werkt:
+```bash
+# Build fase (geen database beschikbaar):
+npm run build = prisma generate && next build
+
+# Start fase (database beschikbaar):
+npm run start = prisma migrate deploy && next start
+```
 
 ### 🆘 Als data nog steeds verdwijnt:
 1. Ga naar Railway Dashboard → Settings → Environment
@@ -85,6 +94,12 @@ Zet in Railway Build Command:
 npm run build
 ```
 (Niet `prisma db push` of vergelijkbaar)
+
+### 🚨 LATEST BUILD ERROR FIX:
+Als je ziet: "Can't reach database server during build"
+- Dit is NORMAAL - database is niet beschikbaar tijdens build
+- De migratie gebeurt nu tijdens START (niet BUILD)
+- Railway zal nu succesvol builden en dan veilig migreren
 
 ## 📋 Checklist voor Railway:
 - [ ] Geen `prisma db push` in Build Command

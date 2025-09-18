@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev -p 3004",
     "dev:stable": "next dev",
-    "build": "prisma migrate deploy && prisma generate && next build",
-    "start": "next start",
+    "build": "prisma generate && next build",
+    "start": "prisma migrate deploy && next start",
+    "start:safe": "prisma migrate deploy --accept-data-loss && next start",
+    "start:force": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",

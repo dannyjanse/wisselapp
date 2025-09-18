@@ -1,1 +1,1 @@
-web: npm run deploy:safe && npm run start
+web: npm run start
