@@ -1,4 +1,4 @@
-# Implementatieplan Wisselapp - 6v6 Voetbal
+# App logica Wisselapp - 6v6 Voetbal
 
 ## Project Overview
 Voetbalwisselapp voor coach van 6v6 team ter ondersteuning van gestructureerd wisselbeleid.
@@ -33,7 +33,7 @@ Voetbalwisselapp voor coach van 6v6 team ter ondersteuning van gestructureerd wi
 #### Groep Samenstelling
 - **2 wisselgroepen per wedstrijd**
 - **Elke groep = 4 spelers + 4 posities**
-- **Posities per groep variëren per wedstrijd** (coach kiest)
+- **Posities per groep variï¿½ren per wedstrijd** (coach kiest)
 
 #### Wisselregels
 1. **Keeper Regel**: Keeper zit altijd in een wisselgroep mee
@@ -44,10 +44,10 @@ Voetbalwisselapp voor coach van 6v6 team ter ondersteuning van gestructureerd wi
 #### Rotatie Algoritme (Automatisch - elke 5 min)
 ```
 Elke 5 minuten binnen groep:
-- Speler op positie 1 ’ positie 2
-- Speler op positie 2 ’ positie 3
-- Speler op positie 3 ’ positie 4
-- Speler op positie 4 ’ positie 1
+- Speler op positie 1 ï¿½ positie 2
+- Speler op positie 2 ï¿½ positie 3
+- Speler op positie 3 ï¿½ positie 4
+- Speler op positie 4 ï¿½ positie 1
 
 Bij keeper in groep:
 - Keeper blijft keeper tot helftijd

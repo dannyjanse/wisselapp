@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  name      String
+  number    Int?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  games     GamePlayer[]
+
+  @@map("players")
+}
+
+model Game {
+  id            String       @id @default(cuid())
+  date          DateTime     @default(now())
+  duration      Int          @default(40) // minuten
+  status        GameStatus   @default(SETUP)
+  gameTime      Int          @default(0) // seconden elapsed
+  rotationTime  Int          @default(300) // 5 minuten in seconden
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  players       GamePlayer[]
+  rotations     Rotation[]
+  groups        Group[]
+
+  @@map("games")
+}
+
+model Group {
+  id          String       @id @default(cuid())
+  gameId      String
+  name        String       // "Groep 1", "Groep 2"
+  positions   String[]     // ["keeper", "linksachter", "rechtsachter", "midden"]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  game        Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  players     GamePlayer[]
+
+  @@map("groups")
+}
+
+model GamePlayer {
+  id        String    @id @default(cuid())
+  gameId    String
+  playerId  String
+  groupId   String
+  isKeeper1 Boolean   @default(false) // 1e helft keeper
+  isKeeper2 Boolean   @default(false) // 2e helft keeper
+  currentPosition String? // huidige positie tijdens game
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  game      Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, playerId])
+  @@map("game_players")
+}
+
+model Rotation {
+  id           String       @id @default(cuid())
+  gameId       String
+  timestamp    DateTime     @default(now())
+  gameTime     Int          // seconden in game toen rotatie plaatsvond
+  type         RotationType // AUTO, MANUAL
+  groupId      String?      // null bij manual position swap
+  changes      Json         // position changes details
+  createdAt    DateTime     @default(now())
+  game         Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("rotations")
+}
+
+enum GameStatus {
+  SETUP
+  ACTIVE
+  PAUSED
+  FINISHED
+}
+
+enum RotationType {
+  AUTO
+  MANUAL
+}
