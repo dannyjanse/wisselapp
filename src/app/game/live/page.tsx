@@ -75,7 +75,12 @@ export default function LiveMatchPage() {
     setLoading(false);
   }, []);
 
-  const generateSubstitutions = (setup: any) => {
+  const generateSubstitutions = (setup: {
+    group1: Player[];
+    group2: Player[];
+    keeper1: Player;
+    keeper2: Player;
+  }) => {
     const subs: Substitution[] = [];
 
     // Group 1 players (excluding current keeper)
@@ -126,7 +131,7 @@ export default function LiveMatchPage() {
       id: subId++,
       outPlayer: setup.keeper1,
       inPlayer: setup.keeper2,
-      group: 0 as any,
+      group: 0 as 1 | 2,
       timing: 'RUST - Keeper Wissel',
       executed: false
     });
