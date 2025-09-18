@@ -134,8 +134,12 @@ npm run lint         # ESLint check
 
 ✅ **Phase 1 Complete**: Foundation setup with Railway deployment
 - Next.js + TypeScript project
-- Prisma with PostgreSQL
+- Prisma with PostgreSQL + proper migrations
 - Basic UI with Tailwind
 - Auto-deploy pipeline
+- Local development with Docker PostgreSQL
 
 🚧 **Next**: Pre-game setup interface (Phase 2)
+
+## Auto-Deploy Status
+🧪 **Testing auto-deploy pipeline** - this change tests git push → Railway deployment
