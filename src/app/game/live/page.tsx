@@ -379,10 +379,19 @@ export default function LiveMatchPage() {
 
                     {/* Keeper - always at bottom */}
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                      <div
+                        className={`bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-pointer transition-all hover:scale-110 ${
+                          substituteMode.outPlayer?.playerId === currentKeeper?.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
+                        } ${
+                          substituteMode.active ? 'hover:ring-2 hover:ring-blue-300' : ''
+                        }`}
+                        onClick={() => currentKeeper && handlePlayerClick(currentKeeper.id, 'keeper', 1, true)}
+                      >
                         🥅
                       </div>
-                      <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow min-w-[60px]">
+                      <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] ${
+                        substituteMode.outPlayer?.playerId === currentKeeper?.id ? 'bg-blue-300' : 'bg-yellow-100'
+                      }`}>
                         {currentKeeper?.name || 'Keeper'}
                       </div>
                     </div>
@@ -516,9 +525,9 @@ export default function LiveMatchPage() {
                         substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
                         substituteMode.active ? 'border-blue-400 hover:border-blue-500' : 'border-gray-300 hover:border-gray-400'
                       } ${
-                        swapMode.firstPlayer?.playerId === matchState.keeper2.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
+                        swapMode.firstPlayer?.playerId === matchState.keeper2?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
                       }`}
-                      onClick={() => handlePlayerClick(matchState.keeper2.id, 'keeper', 1, false)}
+                      onClick={() => matchState.keeper2 && handlePlayerClick(matchState.keeper2.id, 'keeper', 1, false)}
                     >
                       <div className="text-center">
                         <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
@@ -541,9 +550,9 @@ export default function LiveMatchPage() {
                         substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
                         substituteMode.active ? 'border-blue-400 hover:border-blue-500' : 'border-gray-300 hover:border-gray-400'
                       } ${
-                        swapMode.firstPlayer?.playerId === matchState.keeper1.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
+                        swapMode.firstPlayer?.playerId === matchState.keeper1?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
                       }`}
-                      onClick={() => handlePlayerClick(matchState.keeper1.id, 'keeper', 1, false)}
+                      onClick={() => matchState.keeper1 && handlePlayerClick(matchState.keeper1.id, 'keeper', 1, false)}
                     >
                       <div className="text-center">
                         <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
