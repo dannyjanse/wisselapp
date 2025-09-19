@@ -18,7 +18,6 @@ interface MatchState {
   group2: Player[];
   group1Positions: string[];
   group2Positions: string[];
-  currentKeeper: 1 | 2;
   matchTime: number; // in seconds
   isMatchRunning: boolean;
   half: 1 | 2;
@@ -58,7 +57,6 @@ export default function LiveMatchPage() {
           group2: setup.group2,
           group1Positions: setup.group1Positions,
           group2Positions: setup.group2Positions,
-          currentKeeper: 1 as 1 | 2,
           matchTime: 0,
           isMatchRunning: false,
           half: 1 as 1 | 2,
@@ -524,7 +522,6 @@ export default function LiveMatchPage() {
                               isOnField ? 'bg-green-500' : 'bg-blue-400'
                             }`}></div>
                             <span className="font-bold text-sm">{player.name}</span>
-                            {isCurrentKeeper && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">🥅</span>}
                             {index === 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">Meeste tijd</span>}
                           </div>
                           <div className="text-sm font-bold">
