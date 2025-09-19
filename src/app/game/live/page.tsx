@@ -302,7 +302,9 @@ export default function LiveMatchPage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                🏠
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
               </Link>
               <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
                 Live Wedstrijd
@@ -313,7 +315,7 @@ export default function LiveMatchPage() {
             <div className="flex items-center space-x-3 sm:space-x-4">
               <button
                 onClick={resetMatchTimer}
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white bg-gray-600 hover:bg-gray-700 transition-all text-sm"
+                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
                 title="Reset timer (behoudt speeltijden)"
               >
                 🔄
@@ -326,7 +328,7 @@ export default function LiveMatchPage() {
               </div>
               <button
                 onClick={toggleMatchTimer}
-                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all text-sm"
+                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
               >
                 {matchState.isMatchRunning ? '⏸️' : '▶️'}
               </button>
@@ -517,7 +519,7 @@ export default function LiveMatchPage() {
 
               {/* Group 2 Playing Time */}
               <div>
-                <h4 className="text-md font-bold text-green-800 mb-3">🔴 Groep 2 Speeltijd</h4>
+                <h4 className="text-md font-bold text-green-800 mb-3">🟢 Groep 2 Speeltijd</h4>
                 <div className="space-y-2">
                   {matchState.group2
                     .map(player => ({

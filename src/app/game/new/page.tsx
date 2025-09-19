@@ -257,7 +257,9 @@ export default function NewGamePage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                🏠
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wedstrijd Voorbereiding</h1>
             </div>
@@ -488,7 +490,7 @@ export default function NewGamePage() {
 
                   <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3 sm:p-4">
                     <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-green-800">
-                      🔴 Groep 2 - Veldspelers ({gameSetup.group2.length}/4)
+                      🟢 Groep 2 - Veldspelers ({gameSetup.group2.length}/4)
                     </h3>
                     <div className="min-h-[150px] sm:min-h-[200px] space-y-2">
                       {gameSetup.group2.map((player) => (
@@ -622,7 +624,7 @@ export default function NewGamePage() {
               {/* Groep 2 */}
               <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3 sm:p-4">
                 <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-green-800">
-                  🔴 Groep 2 - Veldspelers ({gameSetup.group2Positions.length}/3 posities)
+                  🟢 Groep 2 - Veldspelers ({gameSetup.group2Positions.length}/3 posities)
                 </h3>
                 <div className="bg-white border border-green-200 rounded-lg p-3 sm:p-4 shadow-sm">
                   <div className="mb-3">
@@ -708,7 +710,7 @@ export default function NewGamePage() {
             <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Start Opstelling</h2>
               <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
-                Wissel spelers binnen een groep door erop te klikken
+                Wissel spelers binnen een groep door erop te klikken. {gameSetup.keeper2?.name} start als keeper van de tweede helft als wissel.
               </p>
 
               {/* Voetbalveld visualisatie */}
