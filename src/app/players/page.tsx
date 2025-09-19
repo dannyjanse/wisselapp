@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -80,12 +81,16 @@ export default function PlayersPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3 sm:py-6">
+          <div className="flex justify-between items-center py-3 sm:py-4">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link href="/" className="text-black hover:text-gray-700 font-bold text-lg sm:text-xl transition-colors">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
+                <Image
+                  src="/Logo.jpg"
+                  alt="Wisselapp Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Spelers Beheren</h1>
             </div>

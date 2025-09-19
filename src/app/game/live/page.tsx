@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -302,9 +303,13 @@ export default function LiveMatchPage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
+                <Image
+                  src="/Logo.jpg"
+                  alt="Wisselapp Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Live Wedstrijd</h1>
             </div>
@@ -313,12 +318,10 @@ export default function LiveMatchPage() {
             <div className="flex items-center space-x-3 sm:space-x-4">
               <button
                 onClick={resetMatchTimer}
-                className="text-gray-600 hover:text-gray-800 transition-all"
+                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
                 title="Reset timer (behoudt speeltijden)"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M12 4V1l3 3-3 3V4c-3.31 0-6 2.69-6 6 0 1.01.25 1.97.7 2.8L5.24 14.26C4.46 13.04 4 11.57 4 10c0-4.42 3.58-8 8-8zm7.76 9.74C20.54 10.96 21 9.43 21 8c0-4.42-3.58-8-8-8v3l-3-3 3-3v3c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46c.78-1.22 1.24-2.69 1.24-4.26z"/>
-                </svg>
+                🔄
               </button>
               <div className="text-center">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
@@ -495,14 +498,14 @@ export default function LiveMatchPage() {
                         <div
                           key={player.id}
                           className={`flex items-center justify-between p-2 rounded border ${
-                            isOnField ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+                            isOnField ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'
                           } ${
                             index === 0 ? 'ring-2 ring-red-300' : ''
                           }`}
                         >
                           <div className="flex items-center space-x-2">
                             <div className={`w-3 h-3 rounded-full ${
-                              isOnField ? 'bg-green-500' : 'bg-blue-400'
+                              isOnField ? 'bg-blue-500' : 'bg-gray-400'
                             }`}></div>
                             <span className="font-bold text-sm">{player.name}</span>
                             {index === 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">Meeste tijd</span>}

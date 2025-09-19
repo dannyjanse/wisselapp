@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -247,7 +248,7 @@ export default function NewGamePage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3 sm:py-6">
+          <div className="flex justify-between items-center py-3 sm:py-4">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 href="/"
@@ -257,9 +258,13 @@ export default function NewGamePage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
+                <Image
+                  src="/Logo.jpg"
+                  alt="Wisselapp Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wedstrijd Voorbereiding</h1>
             </div>
@@ -442,7 +447,7 @@ export default function NewGamePage() {
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Maak Wisselgroepen</h2>
             <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
-              Klik op de knoppen om spelers te verplaatsen tussen groepen. Groep 1 (blauw) bevat beide keepers + 2 veldspelers. Groep 2 (groen) bevat 4 veldspelers.
+              Maak twee groepen van 4 spelers die onderling met elkaar gaan wisselen.
             </p>
 
 
