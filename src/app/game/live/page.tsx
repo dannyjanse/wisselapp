@@ -88,8 +88,8 @@ export default function LiveMatchPage() {
           // Update playing times for current on-field players
           const updatedPlayingTimes = { ...prev.playingTimes };
 
-          // Group 1 on-field players (first 4 players)
-          prev.group1.slice(0, 4).forEach(player => {
+          // Group 1 on-field players (first 3 players)
+          prev.group1.slice(0, 3).forEach(player => {
             updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + 1;
           });
 
@@ -427,7 +427,7 @@ export default function LiveMatchPage() {
                   <div className="text-sm font-bold mb-2 text-gray-900">Wisselbank</div>
                   <div className="flex justify-center flex-wrap gap-4">
                     {/* Group 1 Substitutes */}
-                    {matchState.group1.slice(4).map((player) => (
+                    {matchState.group1.slice(3).map((player) => (
                       <div
                         key={`sub-g1-${player.id}`}
                         className="text-center cursor-pointer"
@@ -501,7 +501,7 @@ export default function LiveMatchPage() {
                       const minutes = Math.floor(player.playingTime / 60);
                       const seconds = player.playingTime % 60;
                       const playerIndex = matchState.group1.findIndex(p => p.id === player.id);
-                      const isOnField = playerIndex < 4; // First 4 players are on field
+                      const isOnField = playerIndex < 3; // First 3 players are on field
 
                       return (
                         <div
