@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -237,12 +238,18 @@ export default function NewGamePage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                🏠
+                <Image
+                  src="/logo wisselapp"
+                  alt="Wisselapp Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </Link>
-              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Nieuwe Wedstrijd</h1>
+              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wedstrijd Voorbereiding</h1>
             </div>
             <div className="text-xs sm:text-sm font-bold text-gray-700 bg-gray-100 px-2 py-1 sm:px-4 sm:py-2 rounded-lg">
-              Stap {gameSetup.step === 'select-players' ? '1' : gameSetup.step === 'select-keepers' ? '2' : gameSetup.step === 'create-groups' ? '3' : '4'} van 4
+              Stap {gameSetup.step === 'select-players' ? '1' : gameSetup.step === 'select-keepers' ? '2' : gameSetup.step === 'create-groups' ? '3' : gameSetup.step === 'assign-positions' ? '4' : '5'} van 5
             </div>
           </div>
         </div>
@@ -260,17 +267,9 @@ export default function NewGamePage() {
             </p>
 
             <div className="mb-4 sm:mb-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                  Geselecteerde Spelers ({gameSetup.selectedPlayers.length})
-                </h3>
-                <button
-                  onClick={proceedToKeepers}
-                  className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
-                >
-                  Verder naar Stap 2/4 →
-                </button>
-              </div>
+              <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-900">
+                Geselecteerde Spelers ({gameSetup.selectedPlayers.length})
+              </h3>
             </div>
 
             <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-900">Spelers (klik om te deselecteren)</h3>
@@ -302,6 +301,17 @@ export default function NewGamePage() {
                 <Link href="/players" className="text-blue-600 hover:text-blue-700 ml-1 font-bold underline">
                   Voeg eerst spelers toe
                 </Link>
+              </div>
+            )}
+
+            {gameSetup.selectedPlayers.length >= 8 && (
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={proceedToKeepers}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
+                >
+                  Volgende
+                </button>
               </div>
             )}
           </div>
@@ -392,15 +402,15 @@ export default function NewGamePage() {
               <div className="flex justify-between">
                 <button
                   onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-players' }))}
-                  className="bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-600 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
                 >
-                  ← Vorige
+                  Vorige
                 </button>
                 <button
                   onClick={proceedToGroups}
-                  className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
                 >
-                  Verder naar Groepen →
+                  Volgende
                 </button>
               </div>
             )}
@@ -503,15 +513,15 @@ export default function NewGamePage() {
                   <div className="flex justify-between">
                     <button
                       onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
-                      className="bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-600 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                      className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
                     >
-                      ← Vorige
+                      Vorige
                     </button>
                     <button
                       onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
-                      className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
                     >
-                      Verder naar Posities →
+                      Volgende
                     </button>
                   </div>
                 )}
@@ -685,12 +695,12 @@ export default function NewGamePage() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
+            <div className="flex justify-between">
               <button
                 onClick={() => setGameSetup(prev => ({ ...prev, step: 'create-groups' }))}
-                className="bg-gray-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-700 font-bold shadow-lg transition-all text-sm sm:text-base order-2 sm:order-1"
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
               >
-                ← Terug
+                Vorige
               </button>
               <button
                 onClick={() => {
@@ -703,9 +713,9 @@ export default function NewGamePage() {
                   }
                 }}
                 disabled={gameSetup.group1Positions.length < 2 || gameSetup.group2Positions.length < 3}
-                className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base order-1 sm:order-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold transition-all text-sm"
               >
-                Naar Formatie →
+                Volgende
               </button>
             </div>
           </div>
@@ -946,12 +956,12 @@ export default function NewGamePage() {
                 </ul>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
+              <div className="flex justify-between">
                 <button
-                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'create-groups' }))}
-                  className="bg-gray-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-700 font-bold shadow-lg transition-all text-sm sm:text-base order-2 sm:order-1"
+                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
                 >
-                  ← Terug
+                  Vorige
                 </button>
                 <button
                   onClick={() => {
@@ -963,9 +973,9 @@ export default function NewGamePage() {
                     localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
                     window.location.href = '/game/live';
                   }}
-                  className="bg-green-600 text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg hover:bg-green-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base order-1 sm:order-2"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-bold transition-all text-sm"
                 >
-                  🚀 Wedstrijd Starten
+                  Start Wedstrijd
                 </button>
               </div>
             </div>

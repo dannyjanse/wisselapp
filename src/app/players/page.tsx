@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -83,7 +84,13 @@ export default function PlayersPage() {
           <div className="flex justify-between items-center py-3 sm:py-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link href="/" className="text-blue-600 hover:text-blue-700 font-bold text-lg sm:text-xl transition-colors">
-                🏠
+                <Image
+                  src="/logo wisselapp"
+                  alt="Wisselapp Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Spelers Beheren</h1>
             </div>

@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -302,7 +303,13 @@ export default function LiveMatchPage() {
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                🏠
+                <Image
+                  src="/logo wisselapp"
+                  alt="Wisselapp Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </Link>
               <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
                 Live Wedstrijd
