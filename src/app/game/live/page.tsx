@@ -90,15 +90,8 @@ export default function LiveMatchPage() {
           // Update playing times for current on-field players
           const updatedPlayingTimes = { ...prev.playingTimes };
 
-          // Current keeper gets playing time
-          const currentKeeper = prev.currentKeeper === 1 ? prev.keeper1 : prev.keeper2;
-          if (currentKeeper) {
-            updatedPlayingTimes[currentKeeper.id] = (updatedPlayingTimes[currentKeeper.id] || 0) + 1;
-          }
-
-          // Group 1 on-field players (first 3 non-keeper players)
-          const group1NonKeepers = prev.group1.filter(p => p.id !== prev.keeper1?.id && p.id !== prev.keeper2?.id);
-          group1NonKeepers.slice(0, 3).forEach(player => {
+          // Group 1 on-field players (first 4 players)
+          prev.group1.slice(0, 4).forEach(player => {
             updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + 1;
           });
 
@@ -243,16 +236,6 @@ export default function LiveMatchPage() {
           [newGroup1[outIndex], newGroup1[inIndex]] = [newGroup1[inIndex], newGroup1[outIndex]];
           newState.group1 = newGroup1;
 
-          // If we're swapping keepers, update current keeper
-          if (outPlayerId === prev.keeper1?.id) {
-            newState.currentKeeper = 2;
-          } else if (outPlayerId === prev.keeper2?.id) {
-            newState.currentKeeper = 1;
-          } else if (inPlayerId === prev.keeper1?.id) {
-            newState.currentKeeper = 1;
-          } else if (inPlayerId === prev.keeper2?.id) {
-            newState.currentKeeper = 2;
-          }
         }
       } else if (groupNumber === 2) {
         const newGroup2 = [...prev.group2];
@@ -290,20 +273,18 @@ export default function LiveMatchPage() {
     );
   }
 
-  const currentKeeper = matchState.currentKeeper === 1 ? matchState.keeper1 : matchState.keeper2;
-
   // Get player by position logic
   const getPlayerByPosition = (group: Player[], positions: string[], targetPosition: string) => {
     const posIndex = positions.indexOf(targetPosition);
     if (posIndex === -1) return null;
 
     if (targetPosition === 'keeper') {
-      return currentKeeper;
+      return null; // No special keeper position in live match
     }
 
-    const nonKeepers = group.filter(p => p.id !== matchState.keeper1?.id && p.id !== matchState.keeper2?.id);
-    const adjustedIndex = targetPosition === 'keeper' ? -1 : positions.slice(0, posIndex).filter(p => p !== 'keeper').length;
-    return nonKeepers[adjustedIndex] || null;
+    const allPlayers = group;
+    const adjustedIndex = positions.slice(0, posIndex).filter(p => p !== 'keeper').length;
+    return allPlayers[adjustedIndex] || null;
   };
 
   return (
@@ -381,31 +362,13 @@ export default function LiveMatchPage() {
             <div className="bg-white rounded-lg shadow-lg p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-4">⚽ Huidige Opstelling</h3>
               <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2">
-                <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/3', minWidth: '240px' }}>
+                <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
                   <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
 
                     {/* Goals */}
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
 
-                    {/* Keeper - always at bottom */}
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                      <div
-                        className={`bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg cursor-pointer transition-all hover:scale-110 ${
-                          substituteMode.outPlayer?.playerId === currentKeeper?.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
-                        } ${
-                          substituteMode.active ? 'hover:ring-2 hover:ring-blue-300' : ''
-                        }`}
-                        onClick={() => currentKeeper && handlePlayerClick(currentKeeper.id, 'keeper', 1, true)}
-                      >
-                        🥅
-                      </div>
-                      <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] ${
-                        substituteMode.outPlayer?.playerId === currentKeeper?.id ? 'bg-blue-300' : 'bg-yellow-100'
-                      }`}>
-                        {currentKeeper?.name || 'Keeper'}
-                      </div>
-                    </div>
 
                     {/* Dynamic player positions */}
                     {matchState.group1Positions.concat(matchState.group2Positions).map((position) => {
@@ -546,7 +509,6 @@ export default function LiveMatchPage() {
                       const seconds = player.playingTime % 60;
                       const playerIndex = matchState.group1.findIndex(p => p.id === player.id);
                       const isOnField = playerIndex < 4; // First 4 players are on field
-                      const isCurrentKeeper = player.id === currentKeeper?.id;
 
                       return (
                         <div
@@ -646,36 +608,6 @@ export default function LiveMatchPage() {
               </div>
             </div>
 
-            {/* Match Summary */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">📊 Wedstrijd Info</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Huidige Helft:</span>
-                  <span className="font-bold">{matchState.half}e Helft</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Huidige Keeper:</span>
-                  <span className="font-bold">{currentKeeper?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Spelers op Veld:</span>
-                  <span className="font-bold">7 spelers</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Groep 1 (Veld):</span>
-                  <span className="font-bold text-blue-600">
-                    {matchState.group1.filter(p => p.id !== matchState.keeper1?.id && p.id !== matchState.keeper2?.id).slice(0, 3).length} spelers
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Groep 2 (Veld):</span>
-                  <span className="font-bold text-green-600">
-                    {matchState.group2.slice(0, 3).length} spelers
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
 
         </div>
