@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -161,7 +160,7 @@ export default function LiveMatchPage() {
         return;
       }
 
-      // Execute substitution
+      // Execute substitution (works both ways: field->substitute or substitute->field)
       executeDirectSubstitution(outPlayer.playerId, playerId, groupNumber);
       setSubstituteMode({ active: false, outPlayer: null });
       return;
@@ -212,17 +211,17 @@ export default function LiveMatchPage() {
       return;
     }
 
-    // Start substitution or position swap mode
+    // Start substitution mode for both field and substitute players
     if (isOnField) {
       setSubstituteMode({
         active: true,
         outPlayer: { playerId, group: groupNumber }
       });
     } else {
-      // For substitute players, start position swap with any on-field player in same group
-      setSwapMode({
+      // For substitute players, start substitution mode to swap with field player
+      setSubstituteMode({
         active: true,
-        firstPlayer: { playerId, position: 'substitute', group: groupNumber }
+        outPlayer: { playerId, group: groupNumber }
       });
     }
   };
@@ -297,19 +296,13 @@ export default function LiveMatchPage() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 href="/"
-                className="text-blue-600 hover:text-blue-700 font-bold text-lg sm:text-xl transition-colors"
+                className="text-black hover:text-gray-700 font-bold text-lg sm:text-xl transition-colors"
                 onClick={() => {
                   localStorage.removeItem('gameSetup');
                   localStorage.removeItem('currentMatch');
                 }}
               >
-                <Image
-                  src="/logo wisselapp"
-                  alt="Wisselapp Logo"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
+                🏠
               </Link>
               <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
                 Live Wedstrijd
@@ -318,31 +311,25 @@ export default function LiveMatchPage() {
 
             {/* Timer in Header */}
             <div className="flex items-center space-x-3 sm:space-x-4">
+              <button
+                onClick={resetMatchTimer}
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white bg-gray-600 hover:bg-gray-700 transition-all text-sm"
+                title="Reset timer (behoudt speeltijden)"
+              >
+                🔄
+              </button>
               <div className="text-center">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
                   {formatTime(matchState.matchTime)}
                 </div>
                 <div className="text-xs text-gray-600">Wedstrijdtijd</div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={toggleMatchTimer}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white transition-all transform hover:scale-105 text-sm ${
-                    matchState.isMatchRunning
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-green-600 hover:bg-green-700'
-                  }`}
-                >
-                  {matchState.isMatchRunning ? '⏸️' : '▶️'}
-                </button>
-                <button
-                  onClick={resetMatchTimer}
-                  className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white bg-gray-600 hover:bg-gray-700 transition-all transform hover:scale-105 text-sm"
-                  title="Reset timer (behoudt speeltijden)"
-                >
-                  🔄
-                </button>
-              </div>
+              <button
+                onClick={toggleMatchTimer}
+                className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all text-sm"
+              >
+                {matchState.isMatchRunning ? '⏸️' : '▶️'}
+              </button>
             </div>
           </div>
         </div>
@@ -353,34 +340,6 @@ export default function LiveMatchPage() {
 
           {/* Left Column: Field */}
           <div className="space-y-6">
-            {/* Mode Instructions */}
-            {swapMode.active && (
-              <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg p-3 text-center">
-                <p className="text-sm font-bold text-yellow-800">
-                  🔄 Klik op een andere speler binnen dezelfde groep om van positie te wisselen
-                </p>
-                <button
-                  onClick={() => setSwapMode({ active: false, firstPlayer: null })}
-                  className="mt-2 bg-yellow-600 text-white px-3 py-1 rounded text-xs hover:bg-yellow-700"
-                >
-                  Annuleren
-                </button>
-              </div>
-            )}
-
-            {substituteMode.active && (
-              <div className="bg-blue-100 border-2 border-blue-300 rounded-lg p-3 text-center">
-                <p className="text-sm font-bold text-blue-800">
-                  ↔️ Klik op een wisselspeler om de substitutie uit te voeren
-                </p>
-                <button
-                  onClick={() => setSubstituteMode({ active: false, outPlayer: null })}
-                  className="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
-                >
-                  Annuleren
-                </button>
-              </div>
-            )}
 
             {/* Field Visualization with Substitutes */}
             <div className="bg-white rounded-lg shadow-lg p-4">
@@ -455,7 +414,6 @@ export default function LiveMatchPage() {
 
                 {/* Wisselspelers - onderaan het veld */}
                 <div className="mt-4 text-center">
-                  <div className="text-sm font-bold mb-2 text-gray-900">Wisselbank</div>
                   <div className="flex justify-center flex-wrap gap-4">
                     {/* Group 1 Substitutes */}
                     {matchState.group1.slice(3).map((player) => (
@@ -514,7 +472,6 @@ export default function LiveMatchPage() {
 
             {/* Playing Time Overview per Group */}
             <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">⏱️ Speeltijd per Groep</h3>
 
               {/* Group 1 Playing Time */}
               <div className="mb-6">
