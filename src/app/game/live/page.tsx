@@ -527,7 +527,11 @@ export default function LiveMatchPage() {
                       } ${
                         swapMode.firstPlayer?.playerId === matchState.keeper2?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
                       }`}
-                      onClick={() => matchState.keeper2 && handlePlayerClick(matchState.keeper2.id, 'keeper', 1, false)}
+                      onClick={() => {
+                        if (matchState.keeper2) {
+                          handlePlayerClick(matchState.keeper2.id, 'keeper', 1, false);
+                        }
+                      }}
                     >
                       <div className="text-center">
                         <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
@@ -552,7 +556,11 @@ export default function LiveMatchPage() {
                       } ${
                         swapMode.firstPlayer?.playerId === matchState.keeper1?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
                       }`}
-                      onClick={() => matchState.keeper1 && handlePlayerClick(matchState.keeper1.id, 'keeper', 1, false)}
+                      onClick={() => {
+                        if (matchState.keeper1) {
+                          handlePlayerClick(matchState.keeper1.id, 'keeper', 1, false);
+                        }
+                      }}
                     >
                       <div className="text-center">
                         <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
