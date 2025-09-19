@@ -222,14 +222,22 @@ export default function NewGamePage() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-lg border-b-2 border-gray-200">
+      <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 sm:py-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/" className="text-blue-600 hover:text-blue-700 font-bold text-sm sm:text-lg">
-                ← Terug
+              <Link
+                href="/"
+                className="text-blue-600 hover:text-blue-700 font-bold text-lg sm:text-xl transition-colors"
+                onClick={() => {
+                  localStorage.removeItem('gameSetup');
+                  localStorage.removeItem('currentMatch');
+                }}
+              >
+                🏠
               </Link>
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Nieuwe Wedstrijd</h1>
             </div>
@@ -381,7 +389,13 @@ export default function NewGamePage() {
             </div>
 
             {gameSetup.keeper1 && gameSetup.keeper2 && (
-              <div className="flex justify-end">
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-players' }))}
+                  className="bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-600 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                >
+                  ← Vorige
+                </button>
                 <button
                   onClick={proceedToGroups}
                   className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
@@ -486,7 +500,13 @@ export default function NewGamePage() {
                 </div>
 
                 {gameSetup.group1.length === 4 && gameSetup.group2.length === 4 && (
-                  <div className="flex justify-end">
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
+                      className="bg-gray-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-gray-600 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                    >
+                      ← Vorige
+                    </button>
                     <button
                       onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
                       className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 font-bold shadow-lg transition-all transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto"

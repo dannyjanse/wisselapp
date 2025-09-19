@@ -130,6 +130,15 @@ export default function LiveMatchPage() {
     } : null);
   };
 
+  const resetMatchTimer = () => {
+    if (!matchState) return;
+    setMatchState(prev => prev ? {
+      ...prev,
+      matchTime: 0,
+      isMatchRunning: false
+    } : null);
+  };
+
 
 
   const handlePlayerClick = (playerId: string, position: string, groupNumber: number, isOnField: boolean) => {
@@ -285,11 +294,18 @@ export default function LiveMatchPage() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 sm:py-4">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/" className="text-blue-600 hover:text-blue-700 font-bold text-sm sm:text-lg">
-                ← Home
+              <Link
+                href="/"
+                className="text-blue-600 hover:text-blue-700 font-bold text-lg sm:text-xl transition-colors"
+                onClick={() => {
+                  localStorage.removeItem('gameSetup');
+                  localStorage.removeItem('currentMatch');
+                }}
+              >
+                🏠
               </Link>
               <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
-                Live Wedstrijd - {matchState.half}e Helft
+                Live Wedstrijd
               </h1>
             </div>
 
@@ -301,16 +317,25 @@ export default function LiveMatchPage() {
                 </div>
                 <div className="text-xs text-gray-600">Wedstrijdtijd</div>
               </div>
-              <button
-                onClick={toggleMatchTimer}
-                className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white transition-all transform hover:scale-105 text-sm ${
-                  matchState.isMatchRunning
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-green-600 hover:bg-green-700'
-                }`}
-              >
-                {matchState.isMatchRunning ? '⏸️' : '▶️'}
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={toggleMatchTimer}
+                  className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white transition-all transform hover:scale-105 text-sm ${
+                    matchState.isMatchRunning
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {matchState.isMatchRunning ? '⏸️' : '▶️'}
+                </button>
+                <button
+                  onClick={resetMatchTimer}
+                  className="px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold text-white bg-gray-600 hover:bg-gray-700 transition-all transform hover:scale-105 text-sm"
+                  title="Reset timer (behoudt speeltijden)"
+                >
+                  🔄
+                </button>
+              </div>
             </div>
           </div>
         </div>
