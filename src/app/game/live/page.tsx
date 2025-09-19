@@ -448,7 +448,6 @@ export default function LiveMatchPage() {
                         }`}>
                           {player.name}
                         </div>
-                        <div className="text-xs text-blue-600 font-medium">Groep 1</div>
                       </div>
                     ))}
 
@@ -474,7 +473,6 @@ export default function LiveMatchPage() {
                         }`}>
                           {player.name}
                         </div>
-                        <div className="text-xs text-green-600 font-medium">Groep 2</div>
                       </div>
                     ))}
                   </div>
