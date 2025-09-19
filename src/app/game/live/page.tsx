@@ -276,13 +276,8 @@ export default function LiveMatchPage() {
     const posIndex = positions.indexOf(targetPosition);
     if (posIndex === -1) return null;
 
-    if (targetPosition === 'keeper') {
-      return null; // No special keeper position in live match
-    }
-
     const allPlayers = group;
-    const adjustedIndex = positions.slice(0, posIndex).filter(p => p !== 'keeper').length;
-    return allPlayers[adjustedIndex] || null;
+    return allPlayers[posIndex] || null;
   };
 
   return (
@@ -370,7 +365,6 @@ export default function LiveMatchPage() {
 
                     {/* Dynamic player positions */}
                     {matchState.group1Positions.concat(matchState.group2Positions).map((position) => {
-                      if (position === 'keeper') return null;
 
                       const isGroup1Position = matchState.group1Positions.includes(position);
                       const player = getPlayerByPosition(
@@ -386,6 +380,7 @@ export default function LiveMatchPage() {
                         : 'bg-green-500 border-green-700';
 
                       const positions = {
+                        'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
                         'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
                         'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
                         'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
