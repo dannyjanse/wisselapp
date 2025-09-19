@@ -306,19 +306,19 @@ export default function LiveMatchPage() {
                   <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
               </Link>
-              <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
-                Live Wedstrijd
-              </h1>
+              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Live Wedstrijd</h1>
             </div>
 
             {/* Timer in Header */}
             <div className="flex items-center space-x-3 sm:space-x-4">
               <button
                 onClick={resetMatchTimer}
-                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
+                className="text-gray-600 hover:text-gray-800 transition-all"
                 title="Reset timer (behoudt speeltijden)"
               >
-                🔄
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M12 4V1l3 3-3 3V4c-3.31 0-6 2.69-6 6 0 1.01.25 1.97.7 2.8L5.24 14.26C4.46 13.04 4 11.57 4 10c0-4.42 3.58-8 8-8zm7.76 9.74C20.54 10.96 21 9.43 21 8c0-4.42-3.58-8-8-8v3l-3-3 3-3v3c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46c.78-1.22 1.24-2.69 1.24-4.26z"/>
+                </svg>
               </button>
               <div className="text-center">
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">

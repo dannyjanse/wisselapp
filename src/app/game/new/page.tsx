@@ -291,9 +291,9 @@ export default function NewGamePage() {
                   <button
                     key={player.id}
                     onClick={() => togglePlayerSelection(player)}
-                    className={`p-3 sm:p-4 rounded-lg border-2 text-left transition-all transform shadow-md ${
+                    className={`p-2 sm:p-3 rounded border text-left transition-all shadow-sm ${
                       isSelected
-                        ? 'bg-blue-200 border-blue-400 text-blue-900 scale-95'
+                        ? 'bg-blue-200 border-blue-400 text-blue-900'
                         : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
                     }`}
                   >
@@ -830,7 +830,6 @@ export default function NewGamePage() {
                         }`}>
                           {gameSetup.keeper2.name}
                         </div>
-                        <div className="text-xs text-blue-600 font-medium">Groep 1</div>
                       </div>
                     )}
                     {/* Veldspeler wissel uit groep 2 */}
@@ -855,7 +854,6 @@ export default function NewGamePage() {
                           }`}>
                             {group2Sub.name}
                           </div>
-                          <div className="text-xs text-green-600 font-medium">Groep 2</div>
                         </div>
                       );
                     })()}

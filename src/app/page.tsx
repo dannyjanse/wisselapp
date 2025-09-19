@@ -8,7 +8,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center py-6">
             <Image
-              src="/logo wisselapp"
+              src="/Logo.jpg"
               alt="Wisselapp Logo"
               width={60}
               height={60}
