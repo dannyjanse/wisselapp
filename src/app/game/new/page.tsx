@@ -804,17 +804,17 @@ export default function NewGamePage() {
                     {gameSetup.keeper2 && (
                       <div
                         className="text-center cursor-pointer"
-                        onClick={() => handlePlayerSwap(gameSetup.keeper2.id, 'substitute', 1)}
+                        onClick={() => gameSetup.keeper2 && handlePlayerSwap(gameSetup.keeper2.id, 'substitute', 1)}
                       >
                         <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
-                          swapMode.firstPlayer?.playerId === gameSetup.keeper2.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          swapMode.firstPlayer?.playerId === gameSetup.keeper2?.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                         } ${
                           swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
                         }`}>
                           K2
                         </div>
                         <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
-                          swapMode.firstPlayer?.playerId === gameSetup.keeper2.id ? 'bg-yellow-300' : 'bg-yellow-100'
+                          swapMode.firstPlayer?.playerId === gameSetup.keeper2?.id ? 'bg-yellow-300' : 'bg-yellow-100'
                         }`}>
                           {gameSetup.keeper2.name}
                         </div>
