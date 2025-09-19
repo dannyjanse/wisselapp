@@ -801,25 +801,52 @@ export default function NewGamePage() {
                   <div className="text-sm font-bold mb-2 text-gray-900">Wisselbank</div>
                   <div className="flex justify-center space-x-4 sm:space-x-6">
                     {/* Keeper2 als wissel */}
-                    <div className="text-center">
-                      <div className="bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
-                        K2
+                    {gameSetup.keeper2 && (
+                      <div
+                        className="text-center cursor-pointer"
+                        onClick={() => handlePlayerSwap(gameSetup.keeper2.id, 'substitute', 1)}
+                      >
+                        <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                          swapMode.firstPlayer?.playerId === gameSetup.keeper2.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                        } ${
+                          swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                        }`}>
+                          K2
+                        </div>
+                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                          swapMode.firstPlayer?.playerId === gameSetup.keeper2.id ? 'bg-yellow-300' : 'bg-yellow-100'
+                        }`}>
+                          {gameSetup.keeper2.name}
+                        </div>
+                        <div className="text-xs text-blue-600 font-medium">Groep 1</div>
                       </div>
-                      <div className="text-xs font-bold mt-1 text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow">
-                        {gameSetup.keeper2?.name || 'Keeper 2'}
-                      </div>
-                      <div className="text-xs text-blue-600 font-medium">Groep 1</div>
-                    </div>
+                    )}
                     {/* Veldspeler wissel uit groep 2 */}
-                    <div className="text-center">
-                      <div className="bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto">
-                        W
-                      </div>
-                      <div className="text-xs font-bold mt-1 text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow">
-                        {gameSetup.group2.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id)[3]?.name || 'Wissel'}
-                      </div>
-                      <div className="text-xs text-green-600 font-medium">Groep 2</div>
-                    </div>
+                    {(() => {
+                      const group2Sub = gameSetup.group2.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id)[3];
+                      if (!group2Sub) return null;
+
+                      return (
+                        <div
+                          className="text-center cursor-pointer"
+                          onClick={() => handlePlayerSwap(group2Sub.id, 'substitute', 2)}
+                        >
+                          <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                            swapMode.firstPlayer?.playerId === group2Sub.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          } ${
+                            swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          }`}>
+                            W
+                          </div>
+                          <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                            swapMode.firstPlayer?.playerId === group2Sub.id ? 'bg-yellow-300' : 'bg-yellow-100'
+                          }`}>
+                            {group2Sub.name}
+                          </div>
+                          <div className="text-xs text-green-600 font-medium">Groep 2</div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

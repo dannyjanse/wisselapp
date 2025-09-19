@@ -147,8 +147,8 @@ export default function LiveMatchPage() {
       const outPlayer = substituteMode.outPlayer;
       if (!outPlayer) return;
 
-      // Can only substitute within same group, except keepers
-      if (position !== 'keeper' && outPlayer.group !== groupNumber) {
+      // Can only substitute within same group - no keeper restriction
+      if (outPlayer.group !== groupNumber) {
         alert('Je kunt alleen spelers binnen dezelfde groep wisselen!');
         setSubstituteMode({ active: false, outPlayer: null });
         return;
@@ -242,6 +242,17 @@ export default function LiveMatchPage() {
         if (outIndex !== -1 && inIndex !== -1) {
           [newGroup1[outIndex], newGroup1[inIndex]] = [newGroup1[inIndex], newGroup1[outIndex]];
           newState.group1 = newGroup1;
+
+          // If we're swapping keepers, update current keeper
+          if (outPlayerId === prev.keeper1?.id) {
+            newState.currentKeeper = 2;
+          } else if (outPlayerId === prev.keeper2?.id) {
+            newState.currentKeeper = 1;
+          } else if (inPlayerId === prev.keeper1?.id) {
+            newState.currentKeeper = 1;
+          } else if (inPlayerId === prev.keeper2?.id) {
+            newState.currentKeeper = 2;
+          }
         }
       } else if (groupNumber === 2) {
         const newGroup2 = [...prev.group2];
@@ -366,7 +377,7 @@ export default function LiveMatchPage() {
               </div>
             )}
 
-            {/* Field Visualization */}
+            {/* Field Visualization with Substitutes */}
             <div className="bg-white rounded-lg shadow-lg p-4">
               <h3 className="text-lg font-bold text-gray-900 mb-4">⚽ Huidige Opstelling</h3>
               <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2">
@@ -454,169 +465,156 @@ export default function LiveMatchPage() {
 
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Substitute Players */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">🪧 Wisselspelers</h3>
-
-              {/* Group 1 Substitutes */}
-              <div className="mb-4">
-                <h4 className="text-md font-bold text-blue-800 mb-2">🔵 Groep 1 Wissels</h4>
-                <div className="flex flex-wrap gap-2">
-                  {matchState.group1.filter(p => p.id !== matchState.keeper1?.id && p.id !== matchState.keeper2?.id).slice(3).map((player) => (
-                    <div
-                      key={`sub-g1-${player.id}`}
-                      className={`cursor-pointer border-2 rounded-lg p-2 transition-all hover:shadow-md ${
-                        substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
-                        substituteMode.active ? 'border-blue-400 hover:border-blue-500' : 'border-blue-300 hover:border-blue-400'
-                      } ${
-                        swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-100 border-yellow-400' : 'bg-blue-50'
-                      }`}
-                      onClick={() => handlePlayerClick(player.id, 'substitute', 1, false)}
-                    >
-                      <div className="text-center">
-                        <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
-                          W
-                        </div>
-                        <div className="text-xs font-bold text-gray-900">{player.name}</div>
-                        <div className="text-xs text-blue-600">Groep 1</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Group 2 Substitutes */}
-              <div className="mb-4">
-                <h4 className="text-md font-bold text-green-800 mb-2">🔴 Groep 2 Wissels</h4>
-                <div className="flex flex-wrap gap-2">
-                  {matchState.group2.slice(3).map((player) => (
-                    <div
-                      key={`sub-g2-${player.id}`}
-                      className={`cursor-pointer border-2 rounded-lg p-2 transition-all hover:shadow-md ${
-                        substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
-                        substituteMode.active ? 'border-green-400 hover:border-green-500' : 'border-green-300 hover:border-green-400'
-                      } ${
-                        swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-100 border-yellow-400' : 'bg-green-50'
-                      }`}
-                      onClick={() => handlePlayerClick(player.id, 'substitute', 2, false)}
-                    >
-                      <div className="text-center">
-                        <div className="bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
-                          W
-                        </div>
-                        <div className="text-xs font-bold text-gray-900">{player.name}</div>
-                        <div className="text-xs text-green-600">Groep 2</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Alternative Keeper */}
-              {matchState.currentKeeper === 1 && matchState.keeper2 && (
-                <div>
-                  <h4 className="text-md font-bold text-gray-800 mb-2">🥅 Reserve Keeper</h4>
-                  <div className="flex justify-start">
-                    <div
-                      className={`cursor-pointer border-2 rounded-lg p-2 transition-all hover:shadow-md ${
-                        substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
-                        substituteMode.active ? 'border-blue-400 hover:border-blue-500' : 'border-gray-300 hover:border-gray-400'
-                      } ${
-                        swapMode.firstPlayer?.playerId === matchState.keeper2?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        if (matchState.keeper2) {
-                          handlePlayerClick(matchState.keeper2.id, 'keeper', 1, false);
-                        }
-                      }}
-                    >
-                      <div className="text-center">
-                        <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
-                          🥅
-                        </div>
-                        <div className="text-xs font-bold text-gray-900">{matchState.keeper2.name}</div>
-                        <div className="text-xs text-gray-600">Reserve</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {matchState.currentKeeper === 2 && matchState.keeper1 && (
-                <div>
-                  <h4 className="text-md font-bold text-gray-800 mb-2">🥅 Reserve Keeper</h4>
-                  <div className="flex justify-start">
-                    <div
-                      className={`cursor-pointer border-2 rounded-lg p-2 transition-all hover:shadow-md ${
-                        substituteMode.active && !substituteMode.outPlayer ? 'border-gray-300' :
-                        substituteMode.active ? 'border-blue-400 hover:border-blue-500' : 'border-gray-300 hover:border-gray-400'
-                      } ${
-                        swapMode.firstPlayer?.playerId === matchState.keeper1?.id ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        if (matchState.keeper1) {
-                          handlePlayerClick(matchState.keeper1.id, 'keeper', 1, false);
-                        }
-                      }}
-                    >
-                      <div className="text-center">
-                        <div className="bg-gray-500 border-2 border-gray-700 rounded-full w-8 h-8 mx-auto mb-1 flex items-center justify-center text-xs font-bold text-white">
-                          🥅
-                        </div>
-                        <div className="text-xs font-bold text-gray-900">{matchState.keeper1.name}</div>
-                        <div className="text-xs text-gray-600">Reserve</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Playing Time Overview */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">⏱️ Speeltijd Overzicht</h3>
-              <div className="space-y-2">
-                {matchState.selectedPlayers
-                  .map(player => ({
-                    ...player,
-                    playingTime: matchState.playingTimes[player.id] || 0
-                  }))
-                  .sort((a, b) => b.playingTime - a.playingTime)
-                  .map((player, index) => {
-                    const minutes = Math.floor(player.playingTime / 60);
-                    const seconds = player.playingTime % 60;
-                    const isOnField = (
-                      (matchState.currentKeeper === 1 ? matchState.keeper1?.id : matchState.keeper2?.id) === player.id ||
-                      matchState.group1.filter(p => p.id !== matchState.keeper1?.id && p.id !== matchState.keeper2?.id).slice(0, 3).some(p => p.id === player.id) ||
-                      matchState.group2.slice(0, 3).some(p => p.id === player.id)
-                    );
-
-                    return (
+                {/* Wisselspelers - onderaan het veld */}
+                <div className="mt-4 text-center">
+                  <div className="text-sm font-bold mb-2 text-gray-900">Wisselbank</div>
+                  <div className="flex justify-center flex-wrap gap-4">
+                    {/* Group 1 Substitutes */}
+                    {matchState.group1.slice(4).map((player) => (
                       <div
-                        key={player.id}
-                        className={`flex items-center justify-between p-2 rounded border ${
-                          isOnField ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
-                        } ${
-                          index === 0 ? 'ring-2 ring-red-300' : ''
-                        }`}
+                        key={`sub-g1-${player.id}`}
+                        className="text-center cursor-pointer"
+                        onClick={() => handlePlayerClick(player.id, 'substitute', 1, false)}
                       >
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-3 h-3 rounded-full ${
-                            isOnField ? 'bg-green-500' : 'bg-gray-400'
-                          }`}></div>
-                          <span className="font-bold text-sm">{player.name}</span>
-                          {index === 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">Meeste tijd</span>}
+                        <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                          swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                        } ${
+                          substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
+                        } ${
+                          swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                        }`}>
+                          W
                         </div>
-                        <div className="text-sm font-bold">
-                          {minutes}:{seconds.toString().padStart(2, '0')}
+                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                          swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
+                          substituteMode.outPlayer?.playerId === player.id ? 'bg-blue-300' : 'bg-yellow-100'
+                        }`}>
+                          {player.name}
                         </div>
+                        <div className="text-xs text-blue-600 font-medium">Groep 1</div>
                       </div>
-                    );
-                  })
-                }
+                    ))}
+
+                    {/* Group 2 Substitutes */}
+                    {matchState.group2.slice(3).map((player) => (
+                      <div
+                        key={`sub-g2-${player.id}`}
+                        className="text-center cursor-pointer"
+                        onClick={() => handlePlayerClick(player.id, 'substitute', 2, false)}
+                      >
+                        <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                          swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                        } ${
+                          substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-green-400 ring-opacity-75' : ''
+                        } ${
+                          swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                        }`}>
+                          W
+                        </div>
+                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                          swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
+                          substituteMode.outPlayer?.playerId === player.id ? 'bg-green-300' : 'bg-yellow-100'
+                        }`}>
+                          {player.name}
+                        </div>
+                        <div className="text-xs text-green-600 font-medium">Groep 2</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            {/* Playing Time Overview per Group */}
+            <div className="bg-white rounded-lg shadow-lg p-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">⏱️ Speeltijd per Groep</h3>
+
+              {/* Group 1 Playing Time */}
+              <div className="mb-6">
+                <h4 className="text-md font-bold text-blue-800 mb-3">🔵 Groep 1 Speeltijd</h4>
+                <div className="space-y-2">
+                  {matchState.group1
+                    .map(player => ({
+                      ...player,
+                      playingTime: matchState.playingTimes[player.id] || 0
+                    }))
+                    .sort((a, b) => b.playingTime - a.playingTime)
+                    .map((player, index) => {
+                      const minutes = Math.floor(player.playingTime / 60);
+                      const seconds = player.playingTime % 60;
+                      const playerIndex = matchState.group1.findIndex(p => p.id === player.id);
+                      const isOnField = playerIndex < 4; // First 4 players are on field
+                      const isCurrentKeeper = player.id === currentKeeper?.id;
+
+                      return (
+                        <div
+                          key={player.id}
+                          className={`flex items-center justify-between p-2 rounded border ${
+                            isOnField ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+                          } ${
+                            index === 0 ? 'ring-2 ring-red-300' : ''
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-3 h-3 rounded-full ${
+                              isOnField ? 'bg-green-500' : 'bg-blue-400'
+                            }`}></div>
+                            <span className="font-bold text-sm">{player.name}</span>
+                            {isCurrentKeeper && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">🥅</span>}
+                            {index === 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">Meeste tijd</span>}
+                          </div>
+                          <div className="text-sm font-bold">
+                            {minutes}:{seconds.toString().padStart(2, '0')}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+
+              {/* Group 2 Playing Time */}
+              <div>
+                <h4 className="text-md font-bold text-green-800 mb-3">🔴 Groep 2 Speeltijd</h4>
+                <div className="space-y-2">
+                  {matchState.group2
+                    .map(player => ({
+                      ...player,
+                      playingTime: matchState.playingTimes[player.id] || 0
+                    }))
+                    .sort((a, b) => b.playingTime - a.playingTime)
+                    .map((player, index) => {
+                      const minutes = Math.floor(player.playingTime / 60);
+                      const seconds = player.playingTime % 60;
+                      const playerIndex = matchState.group2.findIndex(p => p.id === player.id);
+                      const isOnField = playerIndex < 3; // First 3 players are on field
+
+                      return (
+                        <div
+                          key={player.id}
+                          className={`flex items-center justify-between p-2 rounded border ${
+                            isOnField ? 'bg-green-50 border-green-200' : 'bg-green-100 border-green-200'
+                          } ${
+                            index === 0 ? 'ring-2 ring-red-300' : ''
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-3 h-3 rounded-full ${
+                              isOnField ? 'bg-green-500' : 'bg-green-400'
+                            }`}></div>
+                            <span className="font-bold text-sm">{player.name}</span>
+                            {index === 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">Meeste tijd</span>}
+                          </div>
+                          <div className="text-sm font-bold">
+                            {minutes}:{seconds.toString().padStart(2, '0')}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -624,46 +622,6 @@ export default function LiveMatchPage() {
           {/* Right Column: Game Controls */}
           <div className="space-y-4">
 
-            {/* Half-time Keeper Change */}
-            {matchState.half === 1 && (
-              <div className="bg-white rounded-lg shadow-lg p-4 border-l-4 border-orange-500">
-                <h3 className="text-lg font-bold text-orange-900 mb-3">🏃‍♂️ Rust Keeper Wissel</h3>
-                <div
-                  className="border-2 border-orange-400 bg-orange-50 rounded-lg p-3 cursor-pointer hover:border-orange-500 hover:shadow-md transition-all"
-                  onClick={() => {
-                    setMatchState(prev => prev ? {
-                      ...prev,
-                      currentKeeper: prev.currentKeeper === 1 ? 2 : 1,
-                      half: 2
-                    } : null);
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-orange-800 mb-1">
-                        Keeper Wissel voor 2e Helft
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-center">
-                          <div className="text-xs text-gray-600">Uit</div>
-                          <div className="font-bold text-red-600">⬇️ {matchState.keeper1?.name}</div>
-                        </div>
-                        <div className="text-lg">↔️</div>
-                        <div className="text-center">
-                          <div className="text-xs text-gray-600">In</div>
-                          <div className="font-bold text-green-600">⬆️ {matchState.keeper2?.name}</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-3">
-                      <div className="bg-orange-600 text-white px-3 py-1 rounded font-bold text-xs">
-                        Rust!
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Match Instructions */}
             <div className="bg-white rounded-lg shadow-lg p-4">
