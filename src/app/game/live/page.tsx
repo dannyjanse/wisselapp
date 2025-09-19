@@ -220,8 +220,6 @@ export default function LiveMatchPage() {
   const executeDirectSubstitution = (outPlayerId: string, inPlayerId: string, groupNumber: number) => {
     if (!matchState) return;
 
-    console.log('Executing substitution:', { outPlayerId, inPlayerId, groupNumber });
-
     setMatchState(prev => {
       if (!prev) return null;
 
@@ -232,8 +230,6 @@ export default function LiveMatchPage() {
         const outIndex = newGroup1.findIndex(p => p.id === outPlayerId);
         const inIndex = newGroup1.findIndex(p => p.id === inPlayerId);
 
-        console.log('Group 1 substitution:', { outIndex, inIndex, group1Length: newGroup1.length });
-
         if (outIndex !== -1 && inIndex !== -1) {
           [newGroup1[outIndex], newGroup1[inIndex]] = [newGroup1[inIndex], newGroup1[outIndex]];
           newState.group1 = newGroup1;
@@ -243,14 +239,9 @@ export default function LiveMatchPage() {
         const outIndex = newGroup2.findIndex(p => p.id === outPlayerId);
         const inIndex = newGroup2.findIndex(p => p.id === inPlayerId);
 
-        console.log('Group 2 substitution:', { outIndex, inIndex, group2Length: newGroup2.length, group2Players: newGroup2.map(p => p.name) });
-
         if (outIndex !== -1 && inIndex !== -1) {
           [newGroup2[outIndex], newGroup2[inIndex]] = [newGroup2[inIndex], newGroup2[outIndex]];
           newState.group2 = newGroup2;
-          console.log('Group 2 substitution executed successfully');
-        } else {
-          console.log('Group 2 substitution failed - players not found');
         }
       }
 
