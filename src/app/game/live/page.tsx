@@ -569,9 +569,9 @@ export default function LiveMatchPage() {
                 {/* Group 2 Suggestion */}
                 <div className="border border-green-200 rounded-lg p-2 bg-green-50">
                   {(() => {
-                    // Get field players (positions 1-2, excluding keeper at position 0)
+                    // Get field players (positions 0-2, Group 2 has no keeper)
                     const fieldPlayersG2 = matchState.group2
-                      .slice(1, 3) // Positions 1 and 2 (after keeper)
+                      .slice(0, 3) // Positions 0, 1 and 2 (all field players)
                       .map(player => ({
                         ...player,
                         playingTime: matchState.playingTimes[player.id] || 0
