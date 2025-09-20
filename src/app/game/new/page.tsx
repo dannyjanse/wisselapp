@@ -138,6 +138,7 @@ export default function NewGamePage() {
       // Don't allow moving keepers in position assignment step
       if (gameSetup.step === 'assign-positions' &&
           (playerId === gameSetup.keeper1?.id || playerId === gameSetup.keeper2?.id)) {
+        alert('Keepers kunnen niet van positie worden gewisseld!');
         return;
       }
 
@@ -320,7 +321,7 @@ export default function NewGamePage() {
               <div>
                 <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-gray-900">🥅 Keeper Eerste Helft</h3>
                 {gameSetup.keeper1 ? (
-                  <div className="bg-blue-100 border-2 border-blue-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
+                  <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
                     <div className="font-bold text-gray-900 text-sm sm:text-base">{gameSetup.keeper1.name}</div>
                     {gameSetup.keeper1.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{gameSetup.keeper1.number}</div>}
                     <button
@@ -340,7 +341,7 @@ export default function NewGamePage() {
               <div>
                 <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-gray-900">🥅 Keeper Tweede Helft</h3>
                 {gameSetup.keeper2 ? (
-                  <div className="bg-green-100 border-2 border-green-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
+                  <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
                     <div className="font-bold text-gray-900 text-sm sm:text-base">{gameSetup.keeper2.name}</div>
                     {gameSetup.keeper2.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{gameSetup.keeper2.number}</div>}
                     <button
@@ -376,10 +377,8 @@ export default function NewGamePage() {
                     (gameSetup.keeper2?.id === player.id)
                   }
                   className={`p-2 sm:p-3 rounded-lg border-2 text-center transition-all shadow-md transform hover:scale-105 ${
-                    gameSetup.keeper1?.id === player.id
-                      ? 'bg-blue-200 border-blue-400 text-blue-900'
-                      : gameSetup.keeper2?.id === player.id
-                      ? 'bg-green-200 border-green-400 text-green-900'
+                    gameSetup.keeper1?.id === player.id || gameSetup.keeper2?.id === player.id
+                      ? 'bg-yellow-200 border-yellow-400 text-yellow-900'
                       : 'bg-white border-gray-300 hover:border-yellow-400 hover:bg-yellow-50 text-gray-900'
                   }`}
                 >
@@ -458,7 +457,7 @@ export default function NewGamePage() {
                           style={pos}
                           onClick={() => canMove && handlePlayerSwap(player.id, position)}
                         >
-                          <div className={`bg-blue-500 border-2 border-blue-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canMove ? 'hover:scale-110' : ''} ${
+                          <div className={`bg-gray-600 border-2 border-gray-800 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canMove ? 'hover:scale-110' : ''} ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             swapMode.active && canMove ? 'hover:ring-2 hover:ring-yellow-300' : ''
@@ -498,7 +497,7 @@ export default function NewGamePage() {
                           className={`text-center ${!isKeeper2 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                           onClick={() => !isKeeper2 && handlePlayerSwap(player.id, 'substitute')}
                         >
-                          <div className={`${isKeeper2 ? 'bg-blue-400 border-blue-600' : 'bg-green-500 border-green-700'} border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
+                          <div className={`bg-gray-600 border-2 border-gray-800 border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             swapMode.active && !isKeeper2 ? 'hover:ring-2 hover:ring-yellow-300' : ''
@@ -589,7 +588,7 @@ export default function NewGamePage() {
                       'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
                     };
 
-                    return Object.entries(positions).map(([position, pos]) => {
+                    const fieldPlayers = Object.entries(positions).map(([position, pos]) => {
                       const player = getPlayerByPosition(position);
                       if (!player) return null;
 
@@ -619,34 +618,51 @@ export default function NewGamePage() {
                         </div>
                       );
                     });
+
+                    // Add substitute players below the field
+                    const substitutePlayers = Object.entries(gameSetup.playerPositions)
+                      .filter(([, position]) => position === 'substitute')
+                      .map(([playerId], index) => {
+                        const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
+                        if (!player) return null;
+
+                        const isKeeper2 = player.id === gameSetup.keeper2?.id;
+                        const substitutePosition = `substitute${index + 1}`;
+                        const group = gameSetup.positionGroups[substitutePosition] || (isKeeper2 ? 1 : 2);
+
+                        const colorClasses = group === 1
+                          ? 'bg-blue-500 border-blue-700'
+                          : 'bg-green-500 border-green-700';
+
+                        return (
+                          <div
+                            key={`${substitutePosition}-${player.id}`}
+                            className="absolute cursor-pointer"
+                            style={{
+                              bottom: '-50px',
+                              left: `${30 + (index * 40)}%`,
+                              transform: 'translateX(-50%)'
+                            }}
+                            onClick={() => !isKeeper2 && handlePositionClick(substitutePosition)}
+                          >
+                            <div className={`${colorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
+                              isKeeper2 ? 'opacity-60' : ''
+                            }`}>
+                              {isKeeper2 ? 'K2' : 'W'}
+                            </div>
+                            <div className="text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] bg-yellow-100">
+                              {player.name}
+                            </div>
+                          </div>
+                        );
+                      });
+
+                    return [...fieldPlayers, ...substitutePlayers];
                   })()}
 
                 </div>
               </div>
 
-              {/* Groepssamenvatting */}
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3">
-                  <h4 className="font-bold text-blue-800 mb-2">🔵 Groep 1 ({Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1}/4)</h4>
-                  <div className="text-sm text-blue-700">
-                    • Keeper (verplicht)<br/>
-                    {Object.entries(gameSetup.positionGroups)
-                      .filter(([, group]) => group === 1)
-                      .map(([position]) => position !== 'keeper' ? `• ${position.charAt(0).toUpperCase() + position.slice(1)}` : '')
-                      .filter(Boolean)
-                      .join('\n')}
-                  </div>
-                </div>
-                <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3">
-                  <h4 className="font-bold text-green-800 mb-2">🟢 Groep 2 ({Object.values(gameSetup.positionGroups).filter(g => g === 2).length}/4)</h4>
-                  <div className="text-sm text-green-700">
-                    {Object.entries(gameSetup.positionGroups)
-                      .filter(([, group]) => group === 2)
-                      .map(([position]) => `• ${position.charAt(0).toUpperCase() + position.slice(1)}`)
-                      .join('\n') || '• Geen posities toegewezen'}
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="flex justify-between">
@@ -672,8 +688,16 @@ export default function NewGamePage() {
                   }
                 }}
 disabled={(() => {
-                  const group1Count = Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1; // +1 for keeper
-                  const group2Count = Object.values(gameSetup.positionGroups).filter(g => g === 2).length;
+                  // Count field positions + substitutes (excluding keeper which is always group 1)
+                  const allPositions = Object.entries(gameSetup.positionGroups);
+                  const group1Positions = allPositions.filter(([, group]) => group === 1);
+                  const group2Positions = allPositions.filter(([, group]) => group === 2);
+
+                  // Group 1 needs keeper + 3 others = 4 total
+                  // Group 2 needs 4 positions
+                  const group1Count = group1Positions.length + 1; // +1 for keeper (always in group 1)
+                  const group2Count = group2Positions.length;
+
                   return group1Count !== 4 || group2Count !== 4;
                 })()}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-bold transition-all text-sm"
