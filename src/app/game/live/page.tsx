@@ -497,8 +497,7 @@ export default function LiveMatchPage() {
               <div className="space-y-4">
 
                 {/* Group 1 Suggestion */}
-                <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
-                  <h4 className="text-sm font-bold text-blue-800 mb-2">🔵 Groep 1</h4>
+                <div className="border border-blue-200 rounded-lg p-2 bg-blue-50">
                   {(() => {
                     // Get field players (excluding keeper) with playing times
                     const fieldPlayersG1 = matchState.group1.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
@@ -524,23 +523,11 @@ export default function LiveMatchPage() {
                       }))
                       .sort((a, b) => a.playingTime - b.playingTime)[0];
 
-                    const outMinutes = Math.floor(playerToSubOut.playingTime / 60);
-                    const outSeconds = playerToSubOut.playingTime % 60;
-                    const inMinutes = Math.floor(playerToSubIn.playingTime / 60);
-                    const inSeconds = playerToSubIn.playingTime % 60;
-
                     return (
-                      <div className="space-y-2">
-                        <div className="text-xs space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-red-700">↗️ Uit: <strong>{playerToSubOut.name}</strong></span>
-                            <span className="text-red-600 font-bold">{outMinutes}:{outSeconds.toString().padStart(2, '0')}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-green-700">↘️ In: <strong>{playerToSubIn.name}</strong></span>
-                            <span className="text-green-600 font-bold">{inMinutes}:{inSeconds.toString().padStart(2, '0')}</span>
-                          </div>
-                        </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-bold text-gray-900">
+                          {playerToSubOut.name} → {playerToSubIn.name}
+                        </span>
                         <button
                           onClick={() => {
                             // Find the positions of both players in group1
@@ -558,9 +545,9 @@ export default function LiveMatchPage() {
                               }) : null);
                             }
                           }}
-                          className="w-full bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors"
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors whitespace-nowrap"
                         >
-                          🔄 Wissel Doorvoeren
+                          Doorvoeren
                         </button>
                       </div>
                     );
@@ -568,8 +555,7 @@ export default function LiveMatchPage() {
                 </div>
 
                 {/* Group 2 Suggestion */}
-                <div className="border border-green-200 rounded-lg p-3 bg-green-50">
-                  <h4 className="text-sm font-bold text-green-800 mb-2">🟢 Groep 2</h4>
+                <div className="border border-green-200 rounded-lg p-2 bg-green-50">
                   {(() => {
                     // Get field players (excluding keeper) with playing times
                     const fieldPlayersG2 = matchState.group2.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
@@ -595,23 +581,11 @@ export default function LiveMatchPage() {
                       }))
                       .sort((a, b) => a.playingTime - b.playingTime)[0];
 
-                    const outMinutes = Math.floor(playerToSubOut.playingTime / 60);
-                    const outSeconds = playerToSubOut.playingTime % 60;
-                    const inMinutes = Math.floor(playerToSubIn.playingTime / 60);
-                    const inSeconds = playerToSubIn.playingTime % 60;
-
                     return (
-                      <div className="space-y-2">
-                        <div className="text-xs space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-red-700">↗️ Uit: <strong>{playerToSubOut.name}</strong></span>
-                            <span className="text-red-600 font-bold">{outMinutes}:{outSeconds.toString().padStart(2, '0')}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-green-700">↘️ In: <strong>{playerToSubIn.name}</strong></span>
-                            <span className="text-green-600 font-bold">{inMinutes}:{inSeconds.toString().padStart(2, '0')}</span>
-                          </div>
-                        </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-bold text-gray-900">
+                          {playerToSubOut.name} → {playerToSubIn.name}
+                        </span>
                         <button
                           onClick={() => {
                             // Find the positions of both players in group2
@@ -629,9 +603,9 @@ export default function LiveMatchPage() {
                               }) : null);
                             }
                           }}
-                          className="w-full bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors"
+                          className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors whitespace-nowrap"
                         >
-                          🔄 Wissel Doorvoeren
+                          Doorvoeren
                         </button>
                       </div>
                     );
