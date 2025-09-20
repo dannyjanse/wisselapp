@@ -96,19 +96,6 @@ export default function NewGamePage() {
     }
   };
 
-  const proceedToKeepers = () => {
-    const selectedCount = gameSetup.selectedPlayers.length;
-
-    if (selectedCount === 8) {
-      setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
-    } else if (selectedCount === 6) {
-      alert('6 spelers geselecteerd: geen wissels en dus geen wisselbeleid nodig.');
-    } else if (selectedCount === 7 || selectedCount === 9) {
-      alert('Wisselbeleid voor dit aantal spelers wordt nog ontwikkeld.');
-    } else if (selectedCount >= 10) {
-      alert('Dat zijn veel te veel wissels man, reduceer het aantal spelers.');
-    }
-  };
 
   const selectKeeper = (player: Player, half: 1 | 2) => {
     if (half === 1) {
@@ -118,33 +105,35 @@ export default function NewGamePage() {
     }
   };
 
-  const proceedToGroups = () => {
+  const proceedToPositions = () => {
     if (gameSetup.keeper1 && gameSetup.keeper2) {
       const remainingPlayers = gameSetup.selectedPlayers.filter(
         p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id
       );
 
-      // Default verdeling: beide keepers + 2 veldspelers in groep 1, rest in groep 2
-      const group1 = [gameSetup.keeper1, gameSetup.keeper2, ...remainingPlayers.slice(0, 2)];
-      const group2 = remainingPlayers.slice(2, 6);
+      // Auto-assign default positions
+      const defaultPositions: { [playerId: string]: string } = {
+        [gameSetup.keeper1.id]: 'keeper',
+        [gameSetup.keeper2.id]: 'substitute'
+      };
 
-      // Auto-assign posities
-      const group1Positions = ['keeper', 'linksachter', 'linksvoor'];
-      const group2Positions = ['rechtsachter', 'midden', 'rechtsvoor'];
+      // Assign remaining players to field positions
+      const fieldPositions = ['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor', 'substitute'];
+      remainingPlayers.forEach((player, index) => {
+        defaultPositions[player.id] = fieldPositions[index] || 'substitute';
+      });
 
       setGameSetup(prev => ({
         ...prev,
-        step: 'create-groups',
-        group1,
-        group2,
-        group1Positions,
-        group2Positions
+        step: 'assign-positions',
+        playerPositions: defaultPositions,
+        positionGroups: {}
       }));
     }
   };
 
 
-  const handlePlayerSwap = (playerId: string, newPosition: string) => {
+  const handlePlayerSwap = (playerId: string, _newPosition?: string) => {
     if (!swapMode.active) {
       // Don't allow moving keepers in position assignment step
       if (gameSetup.step === 'assign-positions' &&
@@ -495,8 +484,8 @@ export default function NewGamePage() {
               <div className="mt-4 text-center">
                 <div className="flex justify-center space-x-4 sm:space-x-6">
                   {Object.entries(gameSetup.playerPositions)
-                    .filter(([_, position]) => position === 'substitute')
-                    .map(([playerId, _]) => {
+                    .filter(([, position]) => position === 'substitute')
+                    .map(([playerId]) => {
                       const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
                       if (!player) return null;
 
@@ -642,8 +631,8 @@ export default function NewGamePage() {
                   <div className="text-sm text-blue-700">
                     • Keeper (verplicht)<br/>
                     {Object.entries(gameSetup.positionGroups)
-                      .filter(([_, group]) => group === 1)
-                      .map(([position, _]) => position !== 'keeper' ? `• ${position.charAt(0).toUpperCase() + position.slice(1)}` : '')
+                      .filter(([, group]) => group === 1)
+                      .map(([position]) => position !== 'keeper' ? `• ${position.charAt(0).toUpperCase() + position.slice(1)}` : '')
                       .filter(Boolean)
                       .join('\n')}
                   </div>
@@ -652,8 +641,8 @@ export default function NewGamePage() {
                   <h4 className="font-bold text-green-800 mb-2">🟢 Groep 2 ({Object.values(gameSetup.positionGroups).filter(g => g === 2).length}/4)</h4>
                   <div className="text-sm text-green-700">
                     {Object.entries(gameSetup.positionGroups)
-                      .filter(([_, group]) => group === 2)
-                      .map(([position, _]) => `• ${position.charAt(0).toUpperCase() + position.slice(1)}`)
+                      .filter(([, group]) => group === 2)
+                      .map(([position]) => `• ${position.charAt(0).toUpperCase() + position.slice(1)}`)
                       .join('\n') || '• Geen posities toegewezen'}
                   </div>
                 </div>
