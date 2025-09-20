@@ -515,17 +515,11 @@ export default function LiveMatchPage() {
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    // Only suggest substitution if there's at least 1 second difference
+                    // If playing times are close (within 1 second), use alphabetical order
                     const sortedFieldPlayers = fieldPlayersG1.sort((a, b) => b.playingTime - a.playingTime);
                     const maxPlayingTime = sortedFieldPlayers[0].playingTime;
-                    const minPlayingTimeInField = sortedFieldPlayers[sortedFieldPlayers.length - 1].playingTime;
 
-                    // If difference is less than 1 second, don't suggest substitution
-                    if (maxPlayingTime - minPlayingTimeInField < 1) {
-                      return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
-                    }
-
-                    // If playing time difference is less than 1 second among max players, use alphabetical order
+                    // Get players with highest playing time (within 1 second of max)
                     const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 1);
                     const playerToSubOut = playersWithMaxTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
@@ -586,17 +580,11 @@ export default function LiveMatchPage() {
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    // Only suggest substitution if there's at least 1 second difference
+                    // If playing times are close (within 1 second), use alphabetical order
                     const sortedFieldPlayers = fieldPlayersG2.sort((a, b) => b.playingTime - a.playingTime);
                     const maxPlayingTime = sortedFieldPlayers[0].playingTime;
-                    const minPlayingTimeInField = sortedFieldPlayers[sortedFieldPlayers.length - 1].playingTime;
 
-                    // If difference is less than 1 second, don't suggest substitution
-                    if (maxPlayingTime - minPlayingTimeInField < 1) {
-                      return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
-                    }
-
-                    // If playing time difference is less than 1 second among max players, use alphabetical order
+                    // Get players with highest playing time (within 1 second of max)
                     const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 1);
                     const playerToSubOut = playersWithMaxTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
