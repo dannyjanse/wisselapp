@@ -492,6 +492,154 @@ export default function LiveMatchPage() {
               </div>
             </div>
 
+            {/* Next Substitution Suggestions */}
+            <div className="bg-white rounded-lg shadow-lg p-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">🔄 Voorgestelde Volgende Wissel</h3>
+              <div className="space-y-4">
+
+                {/* Group 1 Suggestion */}
+                <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                  <h4 className="text-sm font-bold text-blue-800 mb-2">🔵 Groep 1</h4>
+                  {(() => {
+                    // Get field players (excluding keeper) with playing times
+                    const fieldPlayersG1 = matchState.group1.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
+                    const benchPlayersG1 = matchState.group1.slice(3);
+
+                    if (fieldPlayersG1.length === 0 || benchPlayersG1.length === 0) {
+                      return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
+                    }
+
+                    // Find field player with most playing time (to be substituted out)
+                    const playerToSubOut = fieldPlayersG1
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }))
+                      .sort((a, b) => b.playingTime - a.playingTime)[0];
+
+                    // Find bench player with least playing time (to substitute in)
+                    const playerToSubIn = benchPlayersG1
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }))
+                      .sort((a, b) => a.playingTime - b.playingTime)[0];
+
+                    const outMinutes = Math.floor(playerToSubOut.playingTime / 60);
+                    const outSeconds = playerToSubOut.playingTime % 60;
+                    const inMinutes = Math.floor(playerToSubIn.playingTime / 60);
+                    const inSeconds = playerToSubIn.playingTime % 60;
+
+                    return (
+                      <div className="space-y-2">
+                        <div className="text-xs space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-red-700">↗️ Uit: <strong>{playerToSubOut.name}</strong></span>
+                            <span className="text-red-600 font-bold">{outMinutes}:{outSeconds.toString().padStart(2, '0')}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700">↘️ In: <strong>{playerToSubIn.name}</strong></span>
+                            <span className="text-green-600 font-bold">{inMinutes}:{inSeconds.toString().padStart(2, '0')}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Find the positions of both players in group1
+                            const outPlayerIndex = matchState.group1.findIndex(p => p.id === playerToSubOut.id);
+                            const inPlayerIndex = matchState.group1.findIndex(p => p.id === playerToSubIn.id);
+
+                            if (outPlayerIndex !== -1 && inPlayerIndex !== -1) {
+                              // Create new group1 array with swapped positions
+                              const newGroup1 = [...matchState.group1];
+                              [newGroup1[outPlayerIndex], newGroup1[inPlayerIndex]] = [newGroup1[inPlayerIndex], newGroup1[outPlayerIndex]];
+
+                              setMatchState(prev => ({
+                                ...prev,
+                                group1: newGroup1
+                              }));
+                            }
+                          }}
+                          className="w-full bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors"
+                        >
+                          🔄 Wissel Doorvoeren
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Group 2 Suggestion */}
+                <div className="border border-green-200 rounded-lg p-3 bg-green-50">
+                  <h4 className="text-sm font-bold text-green-800 mb-2">🟢 Groep 2</h4>
+                  {(() => {
+                    // Get field players (excluding keeper) with playing times
+                    const fieldPlayersG2 = matchState.group2.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
+                    const benchPlayersG2 = matchState.group2.slice(3);
+
+                    if (fieldPlayersG2.length === 0 || benchPlayersG2.length === 0) {
+                      return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
+                    }
+
+                    // Find field player with most playing time (to be substituted out)
+                    const playerToSubOut = fieldPlayersG2
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }))
+                      .sort((a, b) => b.playingTime - a.playingTime)[0];
+
+                    // Find bench player with least playing time (to substitute in)
+                    const playerToSubIn = benchPlayersG2
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }))
+                      .sort((a, b) => a.playingTime - b.playingTime)[0];
+
+                    const outMinutes = Math.floor(playerToSubOut.playingTime / 60);
+                    const outSeconds = playerToSubOut.playingTime % 60;
+                    const inMinutes = Math.floor(playerToSubIn.playingTime / 60);
+                    const inSeconds = playerToSubIn.playingTime % 60;
+
+                    return (
+                      <div className="space-y-2">
+                        <div className="text-xs space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-red-700">↗️ Uit: <strong>{playerToSubOut.name}</strong></span>
+                            <span className="text-red-600 font-bold">{outMinutes}:{outSeconds.toString().padStart(2, '0')}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-700">↘️ In: <strong>{playerToSubIn.name}</strong></span>
+                            <span className="text-green-600 font-bold">{inMinutes}:{inSeconds.toString().padStart(2, '0')}</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Find the positions of both players in group2
+                            const outPlayerIndex = matchState.group2.findIndex(p => p.id === playerToSubOut.id);
+                            const inPlayerIndex = matchState.group2.findIndex(p => p.id === playerToSubIn.id);
+
+                            if (outPlayerIndex !== -1 && inPlayerIndex !== -1) {
+                              // Create new group2 array with swapped positions
+                              const newGroup2 = [...matchState.group2];
+                              [newGroup2[outPlayerIndex], newGroup2[inPlayerIndex]] = [newGroup2[inPlayerIndex], newGroup2[outPlayerIndex]];
+
+                              setMatchState(prev => ({
+                                ...prev,
+                                group2: newGroup2
+                              }));
+                            }
+                          }}
+                          className="w-full bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors"
+                        >
+                          🔄 Wissel Doorvoeren
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
 
           </div>
 
