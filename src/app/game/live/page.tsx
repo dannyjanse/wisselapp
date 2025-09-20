@@ -424,11 +424,7 @@ export default function LiveMatchPage() {
                 <div className="mt-4 text-center">
                   <div className="flex justify-center flex-wrap gap-4">
                     {/* Group 1 Substitutes */}
-                    {(() => {
-                      console.log('Group 1 full array:', matchState.group1);
-                      console.log('Group 1 substitutes (slice 3):', matchState.group1.slice(3));
-                      return matchState.group1.slice(3);
-                    })().map((player) => {
+                    {matchState.group1.slice(3).map((player) => {
                       const playingTime = matchState.playingTimes[player.id] || 0;
                       const minutes = Math.floor(playingTime / 60);
                       const seconds = playingTime % 60;
@@ -460,11 +456,7 @@ export default function LiveMatchPage() {
                     })}
 
                     {/* Group 2 Substitutes */}
-                    {(() => {
-                      console.log('Group 2 full array:', matchState.group2);
-                      console.log('Group 2 substitutes (slice 3):', matchState.group2.slice(3));
-                      return matchState.group2.slice(3);
-                    })().map((player) => {
+                    {matchState.group2.slice(3).map((player) => {
                       const playingTime = matchState.playingTimes[player.id] || 0;
                       const minutes = Math.floor(playingTime / 60);
                       const seconds = playingTime % 60;

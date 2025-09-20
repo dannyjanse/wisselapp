@@ -681,12 +681,9 @@ export default function NewGamePage() {
                   const group2Count = allPositions.filter(([, group]) => group === 2).length;
 
                   if (group1Count === 4 && group2Count === 4) {
-                    // Transform new data structure to format expected by live match page
-                    // Live page expects specific array order for substitution logic to work
-                    const group1Players: Player[] = [];
-                    const group2Players: Player[] = [];
-                    const group1Positions: string[] = [];
-                    const group2Positions: string[] = [];
+                    // Create exact structure that live match expects for substitution logic
+                    // Group 1: [keeper, 2 field players, 1 substitute (keeper2)]
+                    // Group 2: [3 field players, 1 substitute]
 
                     // Helper function to find player by position
                     const findPlayerByPosition = (position: string): Player | null => {
@@ -696,67 +693,27 @@ export default function NewGamePage() {
                       return playerId ? gameSetup.selectedPlayers.find(p => p.id === playerId) || null : null;
                     };
 
-                    // Build Group 1 in correct order: [keeper, field_players..., substitutes...]
-                    // 1. Keeper (always first)
-                    if (gameSetup.keeper1) {
-                      group1Players.push(gameSetup.keeper1);
-                      group1Positions.push('keeper');
-                    }
+                    // Build Group 1: [keeper, field1, field2, keeper2]
+                    const group1Players = [
+                      gameSetup.keeper1!, // Position 0: keeper
+                      findPlayerByPosition('linksachter')!, // Position 1: field player
+                      findPlayerByPosition('linksvoor')!, // Position 2: field player
+                      gameSetup.keeper2! // Position 3: substitute (keeper2)
+                    ];
 
-                    // 2. Field players from group 1 (positions 1-2 for substitution logic)
-                    const group1FieldPositions = Object.entries(gameSetup.positionGroups)
-                      .filter(([pos, group]) => group === 1 && pos !== 'keeper' && !pos.startsWith('substitute'))
-                      .map(([pos]) => pos);
+                    const group1Positions = ['keeper', 'linksachter', 'linksvoor', 'substitute1'];
 
-                    group1FieldPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group1Players.push(player);
-                        group1Positions.push(position);
-                      }
-                    });
+                    // Build Group 2: [field1, field2, field3, substitute]
+                    const group2Players = [
+                      findPlayerByPosition('rechtsachter')!, // Position 0: field player
+                      findPlayerByPosition('midden')!, // Position 1: field player
+                      findPlayerByPosition('rechtsvoor')!, // Position 2: field player
+                      findPlayerByPosition('substitute2')! // Position 3: substitute
+                    ];
 
-                    // 3. Substitutes from group 1 (positions 3+ for substitution logic)
-                    const group1SubPositions = Object.entries(gameSetup.positionGroups)
-                      .filter(([pos, group]) => group === 1 && pos.startsWith('substitute'))
-                      .map(([pos]) => pos);
+                    const group2Positions = ['rechtsachter', 'midden', 'rechtsvoor', 'substitute2'];
 
-                    group1SubPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group1Players.push(player);
-                        group1Positions.push(position);
-                      }
-                    });
-
-                    // Build Group 2 in correct order: [field_players..., substitutes...]
-                    // 1. Field players from group 2 (positions 0-2 for substitution logic)
-                    const group2FieldPositions = Object.entries(gameSetup.positionGroups)
-                      .filter(([pos, group]) => group === 2 && !pos.startsWith('substitute'))
-                      .map(([pos]) => pos);
-
-                    group2FieldPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group2Players.push(player);
-                        group2Positions.push(position);
-                      }
-                    });
-
-                    // 2. Substitutes from group 2 (positions 3+ for substitution logic)
-                    const group2SubPositions = Object.entries(gameSetup.positionGroups)
-                      .filter(([pos, group]) => group === 2 && pos.startsWith('substitute'))
-                      .map(([pos]) => pos);
-
-                    group2SubPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group2Players.push(player);
-                        group2Positions.push(position);
-                      }
-                    });
-
-                    // Create backwards compatible match setup
+                    // Create match setup with exact structure
                     const matchSetup = {
                       selectedPlayers: gameSetup.selectedPlayers,
                       keeper1: gameSetup.keeper1,
