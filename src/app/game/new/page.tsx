@@ -675,8 +675,10 @@ export default function NewGamePage() {
               </button>
               <button
                 onClick={() => {
-                  const group1Count = Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1; // +1 for keeper
-                  const group2Count = Object.values(gameSetup.positionGroups).filter(g => g === 2).length;
+                  // Use same counting logic as disabled check
+                  const allPositions = Object.entries(gameSetup.positionGroups);
+                  const group1Count = allPositions.filter(([, group]) => group === 1).length;
+                  const group2Count = allPositions.filter(([, group]) => group === 2).length;
 
                   if (group1Count === 4 && group2Count === 4) {
                     // Save final setup and go to live match
