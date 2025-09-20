@@ -528,16 +528,16 @@ export default function NewGamePage() {
               </button>
               <button
                 onClick={() => {
-                  // Initialize default groups: keeper + keeper2 substitute in group 1, others in group 2
+                  // Initialize default groups: perfect 4-4 distribution
                   const defaultGroups: { [position: string]: 1 | 2 } = {
-                    'keeper': 1,
-                    'linksachter': 2,
-                    'rechtsachter': 2,
-                    'midden': 2,
-                    'linksvoor': 2,
-                    'rechtsvoor': 2,
-                    'substitute1': 1, // keeper2 substitute - always group 1
-                    'substitute2': 2  // second substitute - group 2
+                    'keeper': 1,          // Groep 1: keeper
+                    'linksachter': 1,     // Groep 1: linksachter
+                    'linksvoor': 1,       // Groep 1: linksvoor
+                    'substitute1': 1,     // Groep 1: substitute1 (keeper2) - locked
+                    'rechtsachter': 2,    // Groep 2: rechtsachter
+                    'midden': 2,          // Groep 2: midden
+                    'rechtsvoor': 2,      // Groep 2: rechtsvoor
+                    'substitute2': 2      // Groep 2: substitute2
                   };
 
                   setGameSetup(prev => ({
@@ -689,15 +689,10 @@ export default function NewGamePage() {
                   }
                 }}
 disabled={(() => {
-                  // Count field positions + substitutes (excluding keeper which is always group 1)
+                  // Count all positions including keeper and substitutes
                   const allPositions = Object.entries(gameSetup.positionGroups);
-                  const group1Positions = allPositions.filter(([, group]) => group === 1);
-                  const group2Positions = allPositions.filter(([, group]) => group === 2);
-
-                  // Group 1 needs keeper + 3 others = 4 total
-                  // Group 2 needs 4 positions
-                  const group1Count = group1Positions.length + 1; // +1 for keeper (always in group 1)
-                  const group2Count = group2Positions.length;
+                  const group1Count = allPositions.filter(([, group]) => group === 1).length;
+                  const group2Count = allPositions.filter(([, group]) => group === 2).length;
 
                   return group1Count !== 4 || group2Count !== 4;
                 })()}
