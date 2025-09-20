@@ -562,8 +562,8 @@ export default function NewGamePage() {
 
 
             {/* Voetbalveld visualisatie voor groepen */}
-            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-6 sm:mb-8">
-              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.6', minWidth: '240px' }}>
+            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
+              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
                 {/* Veld */}
                 <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
                   {/* Doelen */}
@@ -619,50 +619,49 @@ export default function NewGamePage() {
                       );
                     });
 
-                    // Add substitute players below the field
-                    const substitutePlayers = Object.entries(gameSetup.playerPositions)
-                      .filter(([, position]) => position === 'substitute')
-                      .map(([playerId], index) => {
-                        const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
-                        if (!player) return null;
-
-                        const isKeeper2 = player.id === gameSetup.keeper2?.id;
-                        const substitutePosition = `substitute${index + 1}`;
-                        const group = gameSetup.positionGroups[substitutePosition] || (isKeeper2 ? 1 : 2);
-
-                        const colorClasses = group === 1
-                          ? 'bg-blue-500 border-blue-700'
-                          : 'bg-green-500 border-green-700';
-
-                        return (
-                          <div
-                            key={`${substitutePosition}-${player.id}`}
-                            className="absolute cursor-pointer"
-                            style={{
-                              bottom: '10px',
-                              left: `${25 + (index * 35)}%`,
-                              transform: 'translateX(-50%)'
-                            }}
-                            onClick={() => !isKeeper2 && handlePositionClick(substitutePosition)}
-                          >
-                            <div className={`${colorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
-                              isKeeper2 ? 'opacity-60' : ''
-                            }`}>
-                              {isKeeper2 ? 'K2' : 'W'}
-                            </div>
-                            <div className="text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] bg-yellow-100">
-                              {player.name}
-                            </div>
-                          </div>
-                        );
-                      });
-
-                    return [...fieldPlayers, ...substitutePlayers];
+                    return fieldPlayers;
                   })()}
 
                 </div>
               </div>
 
+              {/* Wisselspelers */}
+              <div className="mt-4 text-center">
+                <div className="flex justify-center space-x-4 sm:space-x-6">
+                  {Object.entries(gameSetup.playerPositions)
+                    .filter(([, position]) => position === 'substitute')
+                    .map(([playerId], index) => {
+                      const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
+                      if (!player) return null;
+
+                      const isKeeper2 = player.id === gameSetup.keeper2?.id;
+                      const substitutePosition = `substitute${index + 1}`;
+                      const group = gameSetup.positionGroups[substitutePosition] || (isKeeper2 ? 1 : 2);
+
+                      const colorClasses = group === 1
+                        ? 'bg-blue-500 border-blue-700'
+                        : 'bg-green-500 border-green-700';
+
+                      return (
+                        <div
+                          key={playerId}
+                          className={`text-center ${!isKeeper2 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                          onClick={() => !isKeeper2 && handlePositionClick(substitutePosition)}
+                        >
+                          <div className={`${colorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
+                            isKeeper2 ? 'opacity-60' : ''
+                          }`}>
+                            {isKeeper2 ? 'K2' : 'W'}
+                          </div>
+                          <div className="text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow bg-yellow-100">
+                            {player.name}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between">
