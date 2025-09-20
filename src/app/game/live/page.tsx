@@ -526,7 +526,7 @@ export default function LiveMatchPage() {
                     return (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-bold text-gray-900">
-                          {playerToSubOut.name} → {playerToSubIn.name}
+                          {playerToSubIn.name} → {playerToSubOut.name}
                         </span>
                         <button
                           onClick={() => {
@@ -584,7 +584,7 @@ export default function LiveMatchPage() {
                     return (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-bold text-gray-900">
-                          {playerToSubOut.name} → {playerToSubIn.name}
+                          {playerToSubIn.name} → {playerToSubOut.name}
                         </span>
                         <button
                           onClick={() => {
