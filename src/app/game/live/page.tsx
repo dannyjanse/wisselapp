@@ -553,10 +553,10 @@ export default function LiveMatchPage() {
                               const newGroup1 = [...matchState.group1];
                               [newGroup1[outPlayerIndex], newGroup1[inPlayerIndex]] = [newGroup1[inPlayerIndex], newGroup1[outPlayerIndex]];
 
-                              setMatchState(prev => ({
+                              setMatchState(prev => prev ? ({
                                 ...prev,
                                 group1: newGroup1
-                              }));
+                              }) : null);
                             }
                           }}
                           className="w-full bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors"
@@ -624,10 +624,10 @@ export default function LiveMatchPage() {
                               const newGroup2 = [...matchState.group2];
                               [newGroup2[outPlayerIndex], newGroup2[inPlayerIndex]] = [newGroup2[inPlayerIndex], newGroup2[outPlayerIndex]];
 
-                              setMatchState(prev => ({
+                              setMatchState(prev => prev ? ({
                                 ...prev,
                                 group2: newGroup2
-                              }));
+                              }) : null);
                             }
                           }}
                           className="w-full bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors"
