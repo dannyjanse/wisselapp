@@ -452,8 +452,9 @@ export default function LiveMatchPage() {
                             <div>{player.name}</div>
                             <div className="text-xs font-normal">{minutes}:{seconds.toString().padStart(2, '0')}</div>
                           </div>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
 
                     {/* Group 2 Substitutes */}
                     {matchState.group2.slice(3).map((player) => {

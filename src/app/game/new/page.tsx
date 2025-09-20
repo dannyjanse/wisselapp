@@ -582,7 +582,7 @@ export default function NewGamePage() {
                     ))}
                   </div>
 
-                  <div className="text-sm text-gray-600 mb-2">Toegewezen posities:</div>
+                  <div className="text-sm text-gray-900 mb-2">Toegewezen posities:</div>
                   <div className="space-y-1">
                     <div className="text-sm bg-blue-100 p-2 rounded">🥅 Keeper (automatisch)</div>
                     {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
@@ -639,7 +639,7 @@ export default function NewGamePage() {
                     ))}
                   </div>
 
-                  <div className="text-sm text-gray-600 mb-2">Toegewezen posities:</div>
+                  <div className="text-sm text-gray-900 mb-2">Toegewezen posities:</div>
                   <div className="space-y-1">
                     {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
                       .filter(pos => !gameSetup.group1Positions.includes(pos) && !gameSetup.group2Positions.includes(pos))
