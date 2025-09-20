@@ -497,7 +497,7 @@ export default function NewGamePage() {
                           className={`text-center ${!isKeeper2 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                           onClick={() => !isKeeper2 && handlePlayerSwap(player.id, 'substitute')}
                         >
-                          <div className={`bg-gray-600 border-2 border-gray-800 border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
+                          <div className={`bg-gray-600 border-2 border-gray-800 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             swapMode.active && !isKeeper2 ? 'hover:ring-2 hover:ring-yellow-300' : ''
@@ -562,8 +562,8 @@ export default function NewGamePage() {
 
 
             {/* Voetbalveld visualisatie voor groepen */}
-            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
-              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
+            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-6 sm:mb-8">
+              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.6', minWidth: '240px' }}>
                 {/* Veld */}
                 <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
                   {/* Doelen */}
@@ -639,8 +639,8 @@ export default function NewGamePage() {
                             key={`${substitutePosition}-${player.id}`}
                             className="absolute cursor-pointer"
                             style={{
-                              bottom: '-50px',
-                              left: `${30 + (index * 40)}%`,
+                              bottom: '10px',
+                              left: `${25 + (index * 35)}%`,
                               transform: 'translateX(-50%)'
                             }}
                             onClick={() => !isKeeper2 && handlePositionClick(substitutePosition)}
