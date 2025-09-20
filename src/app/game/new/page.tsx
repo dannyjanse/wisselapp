@@ -15,11 +15,9 @@ interface GameSetup {
   selectedPlayers: Player[];
   keeper1: Player | null; // Eerste helft keeper
   keeper2: Player | null; // Tweede helft keeper
-  group1: Player[]; // Groep 1 (2 keepers + 2 veldspelers)
-  group2: Player[]; // Groep 2 (4 veldspelers)
-  group1Positions: string[]; // 3 posities voor groep 1
-  group2Positions: string[]; // 3 posities voor groep 2
-  step: 'select-players' | 'select-keepers' | 'create-groups' | 'assign-positions' | 'formation';
+  playerPositions: { [playerId: string]: string }; // playerId -> position mapping
+  positionGroups: { [position: string]: 1 | 2 }; // position -> group mapping
+  step: 'select-players' | 'select-keepers' | 'assign-positions' | 'create-groups';
 }
 
 export default function NewGamePage() {
@@ -44,10 +42,8 @@ export default function NewGamePage() {
       selectedPlayers: [],
       keeper1: null,
       keeper2: null,
-      group1: [],
-      group2: [],
-      group1Positions: [],
-      group2Positions: [],
+      playerPositions: {},
+      positionGroups: {},
       step: 'select-players'
     };
   });
@@ -148,23 +144,25 @@ export default function NewGamePage() {
   };
 
 
-  const handlePlayerSwap = (playerId: string, position: string, groupNumber: number) => {
+  const handlePlayerSwap = (playerId: string, newPosition: string) => {
     if (!swapMode.active) {
+      // Don't allow moving keepers in position assignment step
+      if (gameSetup.step === 'assign-positions' &&
+          (playerId === gameSetup.keeper1?.id || playerId === gameSetup.keeper2?.id)) {
+        return;
+      }
+
       // Start swap mode
+      const currentPosition = Object.keys(gameSetup.playerPositions).find(pid => pid === playerId);
+      const currentPos = currentPosition ? gameSetup.playerPositions[currentPosition] : '';
+
       setSwapMode({
         active: true,
-        firstPlayer: { playerId, position, group: groupNumber }
+        firstPlayer: { playerId, position: currentPos, group: 1 } // group doesn't matter in position step
       });
     } else {
       // Complete swap
       const firstPlayer = swapMode.firstPlayer!;
-
-      // Only allow swapping within same group
-      if (firstPlayer.group !== groupNumber) {
-        alert('Je kunt alleen spelers binnen dezelfde groep wisselen!');
-        setSwapMode({ active: false, firstPlayer: null });
-        return;
-      }
 
       if (firstPlayer.playerId === playerId) {
         // Clicked same player - cancel
@@ -172,68 +170,47 @@ export default function NewGamePage() {
         return;
       }
 
-      // Perform the swap
-      setGameSetup(prev => {
-        const isGroup1 = groupNumber === 1;
-        const group = isGroup1 ? [...prev.group1] : [...prev.group2];
-        const positions = isGroup1 ? [...prev.group1Positions] : [...prev.group2Positions];
+      // Find current positions
+      const firstPlayerCurrentPos = gameSetup.playerPositions[firstPlayer.playerId];
+      const secondPlayerCurrentPos = gameSetup.playerPositions[playerId];
 
-        // Find players in the group
-        const firstPlayerObj = group.find(p => p.id === firstPlayer.playerId);
-        const secondPlayerObj = group.find(p => p.id === playerId);
-
-        if (!firstPlayerObj || !secondPlayerObj) return prev;
-
-        // Handle substitute swaps
-        if (firstPlayer.position === 'substitute' || position === 'substitute') {
-          // Swap players in the group array
-          const firstPlayerIndex = group.findIndex(p => p.id === firstPlayer.playerId);
-          const secondPlayerIndex = group.findIndex(p => p.id === playerId);
-
-          if (firstPlayerIndex !== -1 && secondPlayerIndex !== -1) {
-            [group[firstPlayerIndex], group[secondPlayerIndex]] = [group[secondPlayerIndex], group[firstPlayerIndex]];
-          }
-        } else {
-          // Regular position swap
-          const firstIndex = positions.indexOf(firstPlayer.position);
-          const secondIndex = positions.indexOf(position);
-
-          if (firstIndex !== -1 && secondIndex !== -1) {
-            [positions[firstIndex], positions[secondIndex]] = [positions[secondIndex], positions[firstIndex]];
-          }
+      // Swap positions
+      setGameSetup(prev => ({
+        ...prev,
+        playerPositions: {
+          ...prev.playerPositions,
+          [firstPlayer.playerId]: secondPlayerCurrentPos,
+          [playerId]: firstPlayerCurrentPos
         }
-
-        return {
-          ...prev,
-          group1: isGroup1 ? group : prev.group1,
-          group2: isGroup1 ? prev.group2 : group,
-          group1Positions: isGroup1 ? positions : prev.group1Positions,
-          group2Positions: isGroup1 ? prev.group2Positions : positions
-        };
-      });
+      }));
 
       setSwapMode({ active: false, firstPlayer: null });
     }
   };
 
-  const movePlayerToGroup = (player: Player, toGroup: 1 | 2) => {
-    const fromGroup1 = gameSetup.group1.some(p => p.id === player.id);
-    const fromGroup2 = gameSetup.group2.some(p => p.id === player.id);
+  const handlePositionClick = (position: string) => {
+    if (gameSetup.step === 'create-groups') {
+      // Toggle group assignment
+      setGameSetup(prev => {
+        const currentGroup = prev.positionGroups[position] || 1;
+        const newGroup = currentGroup === 1 ? 2 : 1;
 
-    if (toGroup === 1 && !fromGroup1) {
-      setGameSetup(prev => ({
-        ...prev,
-        group1: [...prev.group1, player],
-        group2: prev.group2.filter(p => p.id !== player.id)
-      }));
-    } else if (toGroup === 2 && !fromGroup2) {
-      setGameSetup(prev => ({
-        ...prev,
-        group2: [...prev.group2, player],
-        group1: prev.group1.filter(p => p.id !== player.id)
-      }));
+        // Don't allow keeper to be moved from group 1
+        if (position === 'keeper' && newGroup === 2) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          positionGroups: {
+            ...prev.positionGroups,
+            [position]: newGroup
+          }
+        };
+      });
     }
   };
+
 
   if (loading) {
     return (
@@ -269,7 +246,7 @@ export default function NewGamePage() {
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wedstrijd Voorbereiding</h1>
             </div>
             <div className="text-xs sm:text-sm font-bold text-gray-700 bg-gray-100 px-2 py-1 sm:px-4 sm:py-2 rounded-lg">
-              Stap {gameSetup.step === 'select-players' ? '1' : gameSetup.step === 'select-keepers' ? '2' : gameSetup.step === 'create-groups' ? '3' : gameSetup.step === 'assign-positions' ? '4' : '5'} van 5
+              Stap {gameSetup.step === 'select-players' ? '1' : gameSetup.step === 'select-keepers' ? '2' : gameSetup.step === 'assign-positions' ? '3' : '4'} van 4
             </div>
           </div>
         </div>
@@ -331,7 +308,7 @@ export default function NewGamePage() {
                   } else if (playerCount >= 10) {
                     alert('Veel te veel wissels, reduceer aantal spelers');
                   } else if (playerCount === 8) {
-                    proceedToKeepers();
+                    setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
                   }
                 }}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
@@ -432,7 +409,7 @@ export default function NewGamePage() {
                   Vorige
                 </button>
                 <button
-                  onClick={proceedToGroups}
+                  onClick={proceedToPositions}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
                 >
                   Volgende
@@ -442,266 +419,144 @@ export default function NewGamePage() {
           </div>
         )}
 
-        {/* Stap 3: Groepen maken */}
-        {gameSetup.step === 'create-groups' && (
-          <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Maak Wisselgroepen</h2>
-            <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
-              Maak twee groepen van 4 spelers die onderling met elkaar gaan wisselen.
-            </p>
-
-
-            <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-6">
-                  <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-blue-800">
-                      🔵 Groep 1 - Keepers + Veldspelers ({gameSetup.group1.length}/4)
-                    </h3>
-                    <div className="min-h-[150px] sm:min-h-[200px] space-y-2">
-                      {gameSetup.group1.map((player) => (
-                        <div
-                          key={player.id}
-                          className="bg-white border-2 border-blue-400 rounded-lg p-2 sm:p-3 shadow-md"
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <div className="font-bold text-gray-900 text-sm sm:text-base">{player.name}</div>
-                              {player.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{player.number}</div>}
-                              {player.id === gameSetup.keeper1?.id && (
-                                <div className="text-xs sm:text-sm text-blue-700 font-bold">🥅 Keeper 1e helft</div>
-                              )}
-                              {player.id === gameSetup.keeper2?.id && (
-                                <div className="text-xs sm:text-sm text-blue-700 font-bold">🥅 Keeper 2e helft</div>
-                              )}
-                            </div>
-                            {player.id !== gameSetup.keeper1?.id && player.id !== gameSetup.keeper2?.id && (
-                              <button
-                                onClick={() => movePlayerToGroup(player, 2)}
-                                className="bg-green-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-lg hover:bg-green-700 font-bold text-xs sm:text-sm transition-all transform hover:scale-105 shadow"
-                              >
-                                → Groep 2
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {gameSetup.group1.length === 0 && (
-                        <div className="text-sm sm:text-base text-blue-600 text-center py-6 sm:py-8 font-medium">
-                          Nog geen spelers in deze groep
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-green-800">
-                      🟢 Groep 2 - Veldspelers ({gameSetup.group2.length}/4)
-                    </h3>
-                    <div className="min-h-[150px] sm:min-h-[200px] space-y-2">
-                      {gameSetup.group2.map((player) => (
-                        <div
-                          key={player.id}
-                          className="bg-white border-2 border-green-400 rounded-lg p-2 sm:p-3 shadow-md"
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <div className="font-bold text-gray-900 text-sm sm:text-base">{player.name}</div>
-                              {player.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{player.number}</div>}
-                              {player.id === gameSetup.keeper1?.id && (
-                                <div className="text-xs sm:text-sm text-green-700 font-bold">🥅 Keeper 1e helft</div>
-                              )}
-                              {player.id === gameSetup.keeper2?.id && (
-                                <div className="text-xs sm:text-sm text-green-700 font-bold">🥅 Keeper 2e helft</div>
-                              )}
-                            </div>
-                            {player.id !== gameSetup.keeper1?.id && player.id !== gameSetup.keeper2?.id && (
-                              <button
-                                onClick={() => movePlayerToGroup(player, 1)}
-                                className="bg-blue-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-lg hover:bg-blue-700 font-bold text-xs sm:text-sm transition-all transform hover:scale-105 shadow"
-                              >
-                                → Groep 1
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {gameSetup.group2.length === 0 && (
-                        <div className="text-sm sm:text-base text-green-600 text-center py-6 sm:py-8 font-medium">
-                          Nog geen spelers in deze groep
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {gameSetup.group1.length === 4 && gameSetup.group2.length === 4 && (
-                  <div className="flex justify-between">
-                    <button
-                      onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
-                      className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-                    >
-                      Vorige
-                    </button>
-                    <button
-                      onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
-                    >
-                      Volgende
-                    </button>
-                  </div>
-                )}
-            </>
-          </div>
-        )}
-
-        {/* Stap 4: Posities toewijzen per groep */}
+        {/* Stap 3: Posities Toewijzen */}
         {gameSetup.step === 'assign-positions' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Posities Toewijzen</h2>
-            <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
-              Wijs 3 posities toe aan elke groep. Groep 1 (blauw) bevat beide keepers en krijgt automatisch de keeper positie.
+            <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
+              Klik op spelers om ze van positie te wisselen. Keepers kunnen niet worden verplaatst.
             </p>
 
+            {/* Voetbalveld visualisatie */}
+            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
+              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
+                {/* Veld */}
+                <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
+                  {/* Doelen */}
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
 
-            {/* Groep toewijzingen */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-6">
-              {/* Groep 1 */}
-              <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-blue-800">
-                  🔵 Groep 1 - Keepers + Veldspelers ({gameSetup.group1Positions.length}/3 posities)
-                </h3>
-                <div className="bg-white border border-blue-200 rounded-lg p-3 sm:p-4 shadow-sm">
-                  <div className="mb-3">
-                    <div className="text-xs sm:text-sm text-gray-900 font-bold mb-2">Spelers in deze groep:</div>
-                    {gameSetup.group1.map((player) => (
-                      <div key={player.id} className="text-xs sm:text-sm font-medium text-gray-800">
-                        • {player.name}
-                        {player.id === gameSetup.keeper1?.id && ' (Keeper 1e helft)'}
-                        {player.id === gameSetup.keeper2?.id && ' (Keeper 2e helft)'}
-                      </div>
-                    ))}
-                  </div>
+                  {/* Render players based on position assignments */}
+                  {(() => {
+                    const getPlayerByPosition = (targetPosition: string) => {
+                      const playerId = Object.keys(gameSetup.playerPositions).find(
+                        pid => gameSetup.playerPositions[pid] === targetPosition
+                      );
+                      return playerId ? gameSetup.selectedPlayers.find(p => p.id === playerId) : null;
+                    };
 
-                  <div className="text-sm text-gray-900 mb-2">Toegewezen posities:</div>
-                  <div className="space-y-1">
-                    <div className="text-sm bg-blue-100 p-2 rounded">🥅 Keeper (automatisch)</div>
-                    {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
-                      .filter(pos => !gameSetup.group1Positions.includes(pos) && !gameSetup.group2Positions.includes(pos))
-                      .slice(0, 2)
-                      .map((position) => (
-                        <button
-                          key={position}
-                          onClick={() => {
-                            if (gameSetup.group1Positions.length < 3) {
-                              setGameSetup(prev => ({
-                                ...prev,
-                                group1Positions: [...prev.group1Positions, position]
-                              }));
-                            }
-                          }}
-                          disabled={gameSetup.group1Positions.length >= 3}
-                          className="w-full text-left text-sm bg-gray-50 hover:bg-blue-50 p-2 rounded border"
+                    const positions = {
+                      'keeper': { bottom: '4px', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
+                      'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+                      'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+                      'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+                      'linksvoor': { top: '15%', left: '15%', label: 'LV' },
+                      'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
+                    };
+
+                    return Object.entries(positions).map(([position, pos]) => {
+                      const player = getPlayerByPosition(position);
+                      if (!player) return null;
+
+                      const isKeeper = position === 'keeper';
+                      const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
+                      const canMove = !isKeeper;
+
+                      return (
+                        <div
+                          key={`${position}-${player.id}`}
+                          className={`absolute ${canMove ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                          style={pos}
+                          onClick={() => canMove && handlePlayerSwap(player.id, position)}
                         >
-                          + {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
-                        </button>
-                      ))}
+                          <div className={`bg-blue-500 border-2 border-blue-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canMove ? 'hover:scale-110' : ''} ${
+                            isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          } ${
+                            swapMode.active && canMove ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          } ${
+                            !canMove ? 'opacity-60' : ''
+                          }`}>
+                            {pos.label}
+                          </div>
+                          <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] ${
+                            isFirstSelected ? 'bg-yellow-300' : 'bg-yellow-100'
+                          }`}>
+                            {player.name}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
 
-                    {gameSetup.group1Positions.filter(pos => pos !== 'keeper').map((position) => (
-                      <div key={position} className="text-sm bg-blue-100 p-2 rounded flex justify-between items-center">
-                        {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
-                        <button
-                          onClick={() => {
-                            setGameSetup(prev => ({
-                              ...prev,
-                              group1Positions: prev.group1Positions.filter(p => p !== position)
-                            }));
-                          }}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              {/* Groep 2 */}
-              <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-green-800">
-                  🟢 Groep 2 - Veldspelers ({gameSetup.group2Positions.length}/3 posities)
-                </h3>
-                <div className="bg-white border border-green-200 rounded-lg p-3 sm:p-4 shadow-sm">
-                  <div className="mb-3">
-                    <div className="text-xs sm:text-sm text-gray-900 font-bold mb-2">Spelers in deze groep:</div>
-                    {gameSetup.group2.map((player) => (
-                      <div key={player.id} className="text-xs sm:text-sm font-medium text-gray-800">• {player.name}</div>
-                    ))}
-                  </div>
+              {/* Wisselspelers */}
+              <div className="mt-4 text-center">
+                <div className="flex justify-center space-x-4 sm:space-x-6">
+                  {Object.entries(gameSetup.playerPositions)
+                    .filter(([_, position]) => position === 'substitute')
+                    .map(([playerId, _]) => {
+                      const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
+                      if (!player) return null;
 
-                  <div className="text-sm text-gray-900 mb-2">Toegewezen posities:</div>
-                  <div className="space-y-1">
-                    {['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor']
-                      .filter(pos => !gameSetup.group1Positions.includes(pos) && !gameSetup.group2Positions.includes(pos))
-                      .slice(0, 3)
-                      .map((position) => (
-                        <button
-                          key={position}
-                          onClick={() => {
-                            if (gameSetup.group2Positions.length < 3) {
-                              setGameSetup(prev => ({
-                                ...prev,
-                                group2Positions: [...prev.group2Positions, position]
-                              }));
-                            }
-                          }}
-                          disabled={gameSetup.group2Positions.length >= 3}
-                          className="w-full text-left text-sm bg-gray-50 hover:bg-green-50 p-2 rounded border"
-                        >
-                          + {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
-                        </button>
-                      ))}
+                      const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
+                      const isKeeper2 = player.id === gameSetup.keeper2?.id;
 
-                    {gameSetup.group2Positions.map((position) => (
-                      <div key={position} className="text-sm bg-green-100 p-2 rounded flex justify-between items-center">
-                        {position.charAt(0).toUpperCase() + position.slice(1).replace(/([A-Z])/g, ' $1')}
-                        <button
-                          onClick={() => {
-                            setGameSetup(prev => ({
-                              ...prev,
-                              group2Positions: prev.group2Positions.filter(p => p !== position)
-                            }));
-                          }}
-                          className="text-red-600 hover:text-red-800"
+                      return (
+                        <div
+                          key={playerId}
+                          className={`text-center ${!isKeeper2 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                          onClick={() => !isKeeper2 && handlePlayerSwap(player.id, 'substitute')}
                         >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                          <div className={`${isKeeper2 ? 'bg-blue-400 border-blue-600' : 'bg-green-500 border-green-700'} border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
+                            isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          } ${
+                            swapMode.active && !isKeeper2 ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          } ${
+                            isKeeper2 ? 'opacity-60' : ''
+                          }`}>
+                            {isKeeper2 ? 'K2' : 'W'}
+                          </div>
+                          <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                            isFirstSelected ? 'bg-yellow-300' : 'bg-yellow-100'
+                          }`}>
+                            {player.name}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
                 </div>
               </div>
             </div>
 
             <div className="flex justify-between">
               <button
-                onClick={() => setGameSetup(prev => ({ ...prev, step: 'create-groups' }))}
+                onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
               >
                 Vorige
               </button>
               <button
                 onClick={() => {
-                  if (gameSetup.group1Positions.length >= 2 && gameSetup.group2Positions.length >= 3) {
-                    setGameSetup(prev => ({
-                      ...prev,
-                      group1Positions: ['keeper', ...prev.group1Positions.filter(p => p !== 'keeper')],
-                      step: 'formation'
-                    }));
-                  }
+                  // Initialize default groups: keeper always in group 1, others in group 2
+                  const defaultGroups: { [position: string]: 1 | 2 } = {
+                    'keeper': 1,
+                    'linksachter': 2,
+                    'rechtsachter': 2,
+                    'midden': 2,
+                    'linksvoor': 2,
+                    'rechtsvoor': 2
+                  };
+
+                  setGameSetup(prev => ({
+                    ...prev,
+                    step: 'create-groups',
+                    positionGroups: defaultGroups
+                  }));
                 }}
-                disabled={gameSetup.group1Positions.length < 2 || gameSetup.group2Positions.length < 3}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-bold transition-all text-sm"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
               >
                 Volgende
               </button>
@@ -709,190 +564,137 @@ export default function NewGamePage() {
           </div>
         )}
 
-        {/* Stap 5: Finale formatie weergave */}
-        {gameSetup.step === 'formation' && (
-          <div className="space-y-4 sm:space-y-6">
-            <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Start Opstelling</h2>
-              <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
-                Wissel spelers binnen een groep door erop te klikken. {gameSetup.keeper2?.name} start als keeper van de tweede helft als wissel.
-              </p>
+        {/* Stap 4: Groepen maken */}
+        {gameSetup.step === 'create-groups' && (
+          <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Groepen Maken</h2>
+            <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
+              Klik op posities om ze toe te wijzen aan groep 1 (blauw) of groep 2 (groen). Maak twee groepen van 4 spelers. Keepers blijven in groep 1.
+            </p>
 
-              {/* Voetbalveld visualisatie */}
-              <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
-                <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
-                  {/* Veld */}
-                  <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
 
-                    {/* Doelen */}
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
+            {/* Voetbalveld visualisatie voor groepen */}
+            <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2 sm:p-4 mb-4 sm:mb-6">
+              <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
+                {/* Veld */}
+                <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
+                  {/* Doelen */}
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-white border border-gray-400"></div>
 
-                    {/* Render players based on position assignments */}
-                    {(() => {
-                      const getPlayerByPosition = (group: Player[], positions: string[], targetPosition: string) => {
-                        const posIndex = positions.indexOf(targetPosition);
-                        if (posIndex === -1) return null;
-
-                        if (targetPosition === 'keeper') {
-                          return gameSetup.keeper1;
-                        }
-
-                        const nonKeepers = group.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id);
-                        const adjustedIndex = targetPosition === 'keeper' ? -1 : positions.slice(0, posIndex).filter(p => p !== 'keeper').length;
-                        return nonKeepers[adjustedIndex] || null;
-                      };
-
-                      return (
-                        <>
-                          {/* Keeper - altijd onderaan */}
-                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                            <div className="bg-blue-500 border-2 border-blue-700 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                              🥅
-                            </div>
-                            <div className="text-xs text-center mt-1 font-bold text-gray-900 bg-yellow-100 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px]">
-                              {gameSetup.keeper1?.name || 'Keeper'}
-                            </div>
-                          </div>
-
-                          {/* Dynamically position other players based on their assigned positions */}
-                          {gameSetup.group1Positions.concat(gameSetup.group2Positions).map((position) => {
-                            if (position === 'keeper') return null;
-
-                            const isGroup1Position = gameSetup.group1Positions.includes(position);
-                            const player = getPlayerByPosition(
-                              isGroup1Position ? gameSetup.group1 : gameSetup.group2,
-                              isGroup1Position ? gameSetup.group1Positions : gameSetup.group2Positions,
-                              position
-                            );
-
-                            if (!player) return null;
-                            const positions = {
-                              'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
-                              'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
-                              'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
-                              'linksvoor': { top: '15%', left: '15%', label: 'LV' },
-                              'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
-                            };
-
-                            const pos = positions[position as keyof typeof positions];
-                            if (!pos) return null;
-
-                            const playerColorClasses = isGroup1Position
-                              ? 'bg-blue-500 border-blue-700'
-                              : 'bg-green-500 border-green-700';
-
-                            const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
-                            const groupNumber = isGroup1Position ? 1 : 2;
-
-                            return (
-                              <div
-                                key={`${position}-${player.id}`}
-                                className="absolute cursor-pointer"
-                                style={pos}
-                                onClick={() => handlePlayerSwap(player.id, position, groupNumber)}
-                              >
-                                <div className={`${playerColorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
-                                  isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
-                                } ${
-                                  swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
-                                }`}>
-                                  {pos.label}
-                                </div>
-                                <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] ${
-                                  isFirstSelected ? 'bg-yellow-300' : 'bg-yellow-100'
-                                }`}>
-                                  {player.name}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </>
+                  {/* Render players with group colors */}
+                  {(() => {
+                    const getPlayerByPosition = (targetPosition: string) => {
+                      const playerId = Object.keys(gameSetup.playerPositions).find(
+                        pid => gameSetup.playerPositions[pid] === targetPosition
                       );
-                    })()}
+                      return playerId ? gameSetup.selectedPlayers.find(p => p.id === playerId) : null;
+                    };
 
-                  </div>
-                </div>
+                    const positions = {
+                      'keeper': { bottom: '4px', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
+                      'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+                      'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+                      'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+                      'linksvoor': { top: '15%', left: '15%', label: 'LV' },
+                      'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
+                    };
 
-                {/* Wisselspelers - Nu onder het veld */}
-                <div className="mt-4 text-center">
-                  <div className="flex justify-center space-x-4 sm:space-x-6">
-                    {/* Keeper2 als wissel */}
-                    {gameSetup.keeper2 && (
-                      <div
-                        className="text-center cursor-pointer"
-                        onClick={() => gameSetup.keeper2 && handlePlayerSwap(gameSetup.keeper2.id, 'substitute', 1)}
-                      >
-                        <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
-                          swapMode.firstPlayer?.playerId === gameSetup.keeper2?.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
-                        } ${
-                          swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
-                        }`}>
-                          K2
-                        </div>
-                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
-                          swapMode.firstPlayer?.playerId === gameSetup.keeper2?.id ? 'bg-yellow-300' : 'bg-yellow-100'
-                        }`}>
-                          {gameSetup.keeper2.name}
-                        </div>
-                      </div>
-                    )}
-                    {/* Veldspeler wissel uit groep 2 */}
-                    {(() => {
-                      const group2Sub = gameSetup.group2.filter(p => p.id !== gameSetup.keeper1?.id && p.id !== gameSetup.keeper2?.id)[3];
-                      if (!group2Sub) return null;
+                    return Object.entries(positions).map(([position, pos]) => {
+                      const player = getPlayerByPosition(position);
+                      if (!player) return null;
+
+                      const group = gameSetup.positionGroups[position] || 1;
+                      const isKeeper = position === 'keeper';
+                      const canClick = !isKeeper;
+
+                      const colorClasses = group === 1
+                        ? 'bg-blue-500 border-blue-700'
+                        : 'bg-green-500 border-green-700';
 
                       return (
                         <div
-                          className="text-center cursor-pointer"
-                          onClick={() => handlePlayerSwap(group2Sub.id, 'substitute', 2)}
+                          key={`${position}-${player.id}`}
+                          className={`absolute ${canClick ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                          style={pos}
+                          onClick={() => canClick && handlePositionClick(position)}
                         >
-                          <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
-                            swapMode.firstPlayer?.playerId === group2Sub.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
-                          } ${
-                            swapMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          <div className={`${colorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canClick ? 'hover:scale-110' : ''} ${
+                            !canClick ? 'opacity-60' : ''
                           }`}>
-                            W
+                            {pos.label}
                           </div>
-                          <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
-                            swapMode.firstPlayer?.playerId === group2Sub.id ? 'bg-yellow-300' : 'bg-yellow-100'
-                          }`}>
-                            {group2Sub.name}
+                          <div className="text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] sm:min-w-[80px] bg-yellow-100">
+                            {player.name}
                           </div>
                         </div>
                       );
-                    })()}
-                  </div>
+                    });
+                  })()}
+
                 </div>
               </div>
 
+              {/* Groepssamenvatting */}
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3">
+                  <h4 className="font-bold text-blue-800 mb-2">🔵 Groep 1 ({Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1}/4)</h4>
+                  <div className="text-sm text-blue-700">
+                    • Keeper (verplicht)<br/>
+                    {Object.entries(gameSetup.positionGroups)
+                      .filter(([_, group]) => group === 1)
+                      .map(([position, _]) => position !== 'keeper' ? `• ${position.charAt(0).toUpperCase() + position.slice(1)}` : '')
+                      .filter(Boolean)
+                      .join('\n')}
+                  </div>
+                </div>
+                <div className="bg-green-50 border-2 border-green-300 rounded-lg p-3">
+                  <h4 className="font-bold text-green-800 mb-2">🟢 Groep 2 ({Object.values(gameSetup.positionGroups).filter(g => g === 2).length}/4)</h4>
+                  <div className="text-sm text-green-700">
+                    {Object.entries(gameSetup.positionGroups)
+                      .filter(([_, group]) => group === 2)
+                      .map(([position, _]) => `• ${position.charAt(0).toUpperCase() + position.slice(1)}`)
+                      .join('\n') || '• Geen posities toegewezen'}
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <div className="flex justify-between">
+              <button
+                onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
+              >
+                Vorige
+              </button>
+              <button
+                onClick={() => {
+                  const group1Count = Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1; // +1 for keeper
+                  const group2Count = Object.values(gameSetup.positionGroups).filter(g => g === 2).length;
 
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-                >
-                  Vorige
-                </button>
-                <button
-                  onClick={() => {
-                    // Save final setup to localStorage
+                  if (group1Count === 4 && group2Count === 4) {
+                    // Save final setup and go to live match
                     const matchSetup = {
                       ...gameSetup,
                       timestamp: Date.now()
                     };
                     localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
                     window.location.href = '/game/live';
-                  }}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-bold transition-all text-sm"
-                >
-                  Start Wedstrijd
-                </button>
-              </div>
+                  }
+                }}
+disabled={(() => {
+                  const group1Count = Object.values(gameSetup.positionGroups).filter(g => g === 1).length + 1; // +1 for keeper
+                  const group2Count = Object.values(gameSetup.positionGroups).filter(g => g === 2).length;
+                  return group1Count !== 4 || group2Count !== 4;
+                })()}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-bold transition-all text-sm"
+              >
+                Start Wedstrijd
+              </button>
             </div>
           </div>
         )}
+
       </main>
     </div>
   );
