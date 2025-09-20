@@ -499,16 +499,21 @@ export default function LiveMatchPage() {
                 {/* Group 1 Suggestion */}
                 <div className="border border-blue-200 rounded-lg p-2 bg-blue-50">
                   {(() => {
-                    // Get all group1 players with playing times (excluding keeper)
-                    const allGroup1Players = matchState.group1
-                      .filter((_, index) => index !== 0) // Exclude keeper (first position)
+                    // Get field players (positions 1-2, excluding keeper at position 0)
+                    const fieldPlayersG1 = matchState.group1
+                      .slice(1, 3) // Positions 1 and 2 (after keeper)
                       .map(player => ({
                         ...player,
                         playingTime: matchState.playingTimes[player.id] || 0
                       }));
 
-                    const fieldPlayersG1 = allGroup1Players.slice(0, 2); // First 2 non-keeper field players
-                    const benchPlayersG1 = allGroup1Players.slice(2); // Remaining players on bench
+                    // Get bench players (positions 3+)
+                    const benchPlayersG1 = matchState.group1
+                      .slice(3)
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }));
 
                     if (fieldPlayersG1.length === 0 || benchPlayersG1.length === 0) {
                       return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
@@ -564,16 +569,21 @@ export default function LiveMatchPage() {
                 {/* Group 2 Suggestion */}
                 <div className="border border-green-200 rounded-lg p-2 bg-green-50">
                   {(() => {
-                    // Get all group2 players with playing times (excluding keeper)
-                    const allGroup2Players = matchState.group2
-                      .filter((_, index) => index !== 0) // Exclude keeper (first position)
+                    // Get field players (positions 1-2, excluding keeper at position 0)
+                    const fieldPlayersG2 = matchState.group2
+                      .slice(1, 3) // Positions 1 and 2 (after keeper)
                       .map(player => ({
                         ...player,
                         playingTime: matchState.playingTimes[player.id] || 0
                       }));
 
-                    const fieldPlayersG2 = allGroup2Players.slice(0, 2); // First 2 non-keeper field players
-                    const benchPlayersG2 = allGroup2Players.slice(2); // Remaining players on bench
+                    // Get bench players (positions 3+)
+                    const benchPlayersG2 = matchState.group2
+                      .slice(3)
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }));
 
                     if (fieldPlayersG2.length === 0 || benchPlayersG2.length === 0) {
                       return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
