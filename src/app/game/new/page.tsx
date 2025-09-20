@@ -681,11 +681,49 @@ export default function NewGamePage() {
                   const group2Count = allPositions.filter(([, group]) => group === 2).length;
 
                   if (group1Count === 4 && group2Count === 4) {
-                    // Save final setup and go to live match
+                    // Transform new data structure to format expected by live match page
+                    const group1Players: Player[] = [];
+                    const group2Players: Player[] = [];
+                    const group1Positions: string[] = [];
+                    const group2Positions: string[] = [];
+
+                    // Distribute players and positions based on positionGroups
+                    Object.entries(gameSetup.positionGroups).forEach(([position, group]) => {
+                      if (group === 1) {
+                        group1Positions.push(position);
+                        // Find player for this position
+                        const playerId = Object.keys(gameSetup.playerPositions).find(
+                          pid => gameSetup.playerPositions[pid] === position
+                        );
+                        if (playerId) {
+                          const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
+                          if (player) group1Players.push(player);
+                        }
+                      } else {
+                        group2Positions.push(position);
+                        // Find player for this position
+                        const playerId = Object.keys(gameSetup.playerPositions).find(
+                          pid => gameSetup.playerPositions[pid] === position
+                        );
+                        if (playerId) {
+                          const player = gameSetup.selectedPlayers.find(p => p.id === playerId);
+                          if (player) group2Players.push(player);
+                        }
+                      }
+                    });
+
+                    // Create backwards compatible match setup
                     const matchSetup = {
-                      ...gameSetup,
+                      selectedPlayers: gameSetup.selectedPlayers,
+                      keeper1: gameSetup.keeper1,
+                      keeper2: gameSetup.keeper2,
+                      group1: group1Players,
+                      group2: group2Players,
+                      group1Positions,
+                      group2Positions,
                       timestamp: Date.now()
                     };
+
                     localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
                     window.location.href = '/game/live';
                   }
