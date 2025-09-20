@@ -644,28 +644,6 @@ export default function LiveMatchPage() {
           <div className="space-y-4">
 
 
-            {/* Match Instructions */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Hoe te Wisselen</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-start space-x-2">
-                  <span className="text-blue-600 font-bold">1.</span>
-                  <span>Klik op een speler die je van het veld wilt halen</span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-blue-600 font-bold">2.</span>
-                  <span>Klik op een wisselspeler om de substitutie uit te voeren</span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-yellow-600 font-bold">💡</span>
-                  <span>Voor positiewissels: klik twee keer binnen dezelfde groep</span>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <span className="text-green-600 font-bold">⏱️</span>
-                  <span>Speeltijd wordt automatisch bijgehouden per speler</span>
-                </div>
-              </div>
-            </div>
 
           </div>
 
