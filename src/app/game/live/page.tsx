@@ -375,8 +375,8 @@ export default function LiveMatchPage() {
 
                       const positions = {
                         'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
-                        'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
-                        'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+                        'linksachter': { bottom: '12%', left: '15%', label: 'LA' },
+                        'rechtsachter': { bottom: '12%', right: '15%', label: 'RA' },
                         'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
                         'linksvoor': { top: '15%', left: '15%', label: 'LV' },
                         'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
