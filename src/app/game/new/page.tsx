@@ -694,21 +694,51 @@ export default function NewGamePage() {
                     };
 
                     // Build Group 1: [keeper, field1, field2, keeper2]
+                    const linksachterPlayer = findPlayerByPosition('linksachter');
+                    const linksvoorPlayer = findPlayerByPosition('linksvoor');
+
+                    if (!gameSetup.keeper1 || !gameSetup.keeper2 || !linksachterPlayer || !linksvoorPlayer) {
+                      alert('Fout: Niet alle spelers kunnen worden gevonden voor groep 1');
+                      return;
+                    }
+
                     const group1Players = [
-                      gameSetup.keeper1!, // Position 0: keeper
-                      findPlayerByPosition('linksachter')!, // Position 1: field player
-                      findPlayerByPosition('linksvoor')!, // Position 2: field player
-                      gameSetup.keeper2! // Position 3: substitute (keeper2)
+                      gameSetup.keeper1, // Position 0: keeper
+                      linksachterPlayer, // Position 1: field player
+                      linksvoorPlayer, // Position 2: field player
+                      gameSetup.keeper2 // Position 3: substitute (keeper2)
                     ];
 
                     const group1Positions = ['keeper', 'linksachter', 'linksvoor', 'substitute1'];
 
                     // Build Group 2: [field1, field2, field3, substitute]
+                    const rechtsachterPlayer = findPlayerByPosition('rechtsachter');
+                    const middenPlayer = findPlayerByPosition('midden');
+                    const rechtsvoorPlayer = findPlayerByPosition('rechtsvoor');
+
+                    // Find substitute2 player - it's the remaining player not in other positions
+                    const usedPlayerIds = new Set([
+                      gameSetup.keeper1.id,
+                      gameSetup.keeper2.id,
+                      linksachterPlayer.id,
+                      linksvoorPlayer.id,
+                      rechtsachterPlayer?.id,
+                      middenPlayer?.id,
+                      rechtsvoorPlayer?.id
+                    ].filter(Boolean));
+
+                    const substitute2Player = gameSetup.selectedPlayers.find(p => !usedPlayerIds.has(p.id));
+
+                    if (!rechtsachterPlayer || !middenPlayer || !rechtsvoorPlayer || !substitute2Player) {
+                      alert('Fout: Niet alle spelers kunnen worden gevonden voor groep 2');
+                      return;
+                    }
+
                     const group2Players = [
-                      findPlayerByPosition('rechtsachter')!, // Position 0: field player
-                      findPlayerByPosition('midden')!, // Position 1: field player
-                      findPlayerByPosition('rechtsvoor')!, // Position 2: field player
-                      findPlayerByPosition('substitute2')! // Position 3: substitute
+                      rechtsachterPlayer, // Position 0: field player
+                      middenPlayer, // Position 1: field player
+                      rechtsvoorPlayer, // Position 2: field player
+                      substitute2Player // Position 3: substitute
                     ];
 
                     const group2Positions = ['rechtsachter', 'midden', 'rechtsvoor', 'substitute2'];
