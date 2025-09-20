@@ -515,10 +515,17 @@ export default function LiveMatchPage() {
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    // If tied, pick randomly
+                    // Only suggest substitution if there's at least 1 second difference
                     const sortedFieldPlayers = fieldPlayersG1.sort((a, b) => b.playingTime - a.playingTime);
                     const maxPlayingTime = sortedFieldPlayers[0].playingTime;
-                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime === maxPlayingTime);
+                    const minPlayingTimeInField = sortedFieldPlayers[sortedFieldPlayers.length - 1].playingTime;
+
+                    // If difference is less than 1 second, don't suggest substitution
+                    if (maxPlayingTime - minPlayingTimeInField < 1) {
+                      return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
+                    }
+
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 0.5);
                     const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
 
                     // Find bench player with least playing time (to substitute in)
@@ -578,10 +585,17 @@ export default function LiveMatchPage() {
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    // If tied, pick randomly
+                    // Only suggest substitution if there's at least 1 second difference
                     const sortedFieldPlayers = fieldPlayersG2.sort((a, b) => b.playingTime - a.playingTime);
                     const maxPlayingTime = sortedFieldPlayers[0].playingTime;
-                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime === maxPlayingTime);
+                    const minPlayingTimeInField = sortedFieldPlayers[sortedFieldPlayers.length - 1].playingTime;
+
+                    // If difference is less than 1 second, don't suggest substitution
+                    if (maxPlayingTime - minPlayingTimeInField < 1) {
+                      return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
+                    }
+
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 0.5);
                     const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
 
                     // Find bench player with least playing time (to substitute in)
