@@ -348,7 +348,6 @@ export default function LiveMatchPage() {
 
             {/* Field Visualization with Substitutes */}
             <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">⚽ Huidige Opstelling</h3>
               <div className="bg-green-100 border-2 border-green-300 rounded-lg p-2">
                 <div className="relative w-full max-w-[280px] mx-auto" style={{ aspectRatio: '2/2.2', minWidth: '240px' }}>
                   <div className="w-full h-full bg-green-200 border-2 border-white rounded relative">
