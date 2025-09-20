@@ -375,11 +375,11 @@ export default function LiveMatchPage() {
 
                       const positions = {
                         'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
-                        'linksachter': { bottom: '12%', left: '15%', label: 'LA' },
-                        'rechtsachter': { bottom: '12%', right: '15%', label: 'RA' },
+                        'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+                        'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
                         'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
-                        'linksvoor': { top: '15%', left: '15%', label: 'LV' },
-                        'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
+                        'linksvoor': { top: '8%', left: '15%', label: 'LV' },
+                        'rechtsvoor': { top: '8%', right: '15%', label: 'RV' }
                       };
 
                       const pos = positions[position as keyof typeof positions];
@@ -525,15 +525,16 @@ export default function LiveMatchPage() {
                       return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
                     }
 
-                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 0.5);
-                    const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
+                    // If playing time difference is less than 1 second among max players, use alphabetical order
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 1);
+                    const playerToSubOut = playersWithMaxTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
                     // Find bench player with least playing time (to substitute in)
-                    // If tied, pick randomly
+                    // If tied, use alphabetical order
                     const sortedBenchPlayers = benchPlayersG1.sort((a, b) => a.playingTime - b.playingTime);
                     const minPlayingTime = sortedBenchPlayers[0].playingTime;
-                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime === minPlayingTime);
-                    const playerToSubIn = playersWithMinTime[Math.floor(Math.random() * playersWithMinTime.length)];
+                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime <= minPlayingTime + 1);
+                    const playerToSubIn = playersWithMinTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
                     return (
                       <div className="flex items-center justify-between gap-3">
@@ -595,15 +596,16 @@ export default function LiveMatchPage() {
                       return <p className="text-xs text-gray-600">Speeltijden nog gelijk</p>;
                     }
 
-                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 0.5);
-                    const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
+                    // If playing time difference is less than 1 second among max players, use alphabetical order
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime >= maxPlayingTime - 1);
+                    const playerToSubOut = playersWithMaxTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
                     // Find bench player with least playing time (to substitute in)
-                    // If tied, pick randomly
+                    // If tied, use alphabetical order
                     const sortedBenchPlayers = benchPlayersG2.sort((a, b) => a.playingTime - b.playingTime);
                     const minPlayingTime = sortedBenchPlayers[0].playingTime;
-                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime === minPlayingTime);
-                    const playerToSubIn = playersWithMinTime[Math.floor(Math.random() * playersWithMinTime.length)];
+                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime <= minPlayingTime + 1);
+                    const playerToSubIn = playersWithMinTime.sort((a, b) => a.name.localeCompare(b.name))[0];
 
                     return (
                       <div className="flex items-center justify-between gap-3">
