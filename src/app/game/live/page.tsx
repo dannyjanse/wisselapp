@@ -499,29 +499,34 @@ export default function LiveMatchPage() {
                 {/* Group 1 Suggestion */}
                 <div className="border border-blue-200 rounded-lg p-2 bg-blue-50">
                   {(() => {
-                    // Get field players (excluding keeper) with playing times
-                    const fieldPlayersG1 = matchState.group1.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
-                    const benchPlayersG1 = matchState.group1.slice(3);
+                    // Get all group1 players with playing times (excluding keeper)
+                    const allGroup1Players = matchState.group1
+                      .filter((_, index) => index !== 0) // Exclude keeper (first position)
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }));
+
+                    const fieldPlayersG1 = allGroup1Players.slice(0, 2); // First 2 non-keeper field players
+                    const benchPlayersG1 = allGroup1Players.slice(2); // Remaining players on bench
 
                     if (fieldPlayersG1.length === 0 || benchPlayersG1.length === 0) {
                       return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    const playerToSubOut = fieldPlayersG1
-                      .map(player => ({
-                        ...player,
-                        playingTime: matchState.playingTimes[player.id] || 0
-                      }))
-                      .sort((a, b) => b.playingTime - a.playingTime)[0];
+                    // If tied, pick randomly
+                    const sortedFieldPlayers = fieldPlayersG1.sort((a, b) => b.playingTime - a.playingTime);
+                    const maxPlayingTime = sortedFieldPlayers[0].playingTime;
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime === maxPlayingTime);
+                    const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
 
                     // Find bench player with least playing time (to substitute in)
-                    const playerToSubIn = benchPlayersG1
-                      .map(player => ({
-                        ...player,
-                        playingTime: matchState.playingTimes[player.id] || 0
-                      }))
-                      .sort((a, b) => a.playingTime - b.playingTime)[0];
+                    // If tied, pick randomly
+                    const sortedBenchPlayers = benchPlayersG1.sort((a, b) => a.playingTime - b.playingTime);
+                    const minPlayingTime = sortedBenchPlayers[0].playingTime;
+                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime === minPlayingTime);
+                    const playerToSubIn = playersWithMinTime[Math.floor(Math.random() * playersWithMinTime.length)];
 
                     return (
                       <div className="flex items-center justify-between gap-3">
@@ -557,29 +562,34 @@ export default function LiveMatchPage() {
                 {/* Group 2 Suggestion */}
                 <div className="border border-green-200 rounded-lg p-2 bg-green-50">
                   {(() => {
-                    // Get field players (excluding keeper) with playing times
-                    const fieldPlayersG2 = matchState.group2.slice(0, 3).filter((_, index) => index !== 0); // Exclude keeper (first position)
-                    const benchPlayersG2 = matchState.group2.slice(3);
+                    // Get all group2 players with playing times (excluding keeper)
+                    const allGroup2Players = matchState.group2
+                      .filter((_, index) => index !== 0) // Exclude keeper (first position)
+                      .map(player => ({
+                        ...player,
+                        playingTime: matchState.playingTimes[player.id] || 0
+                      }));
+
+                    const fieldPlayersG2 = allGroup2Players.slice(0, 2); // First 2 non-keeper field players
+                    const benchPlayersG2 = allGroup2Players.slice(2); // Remaining players on bench
 
                     if (fieldPlayersG2.length === 0 || benchPlayersG2.length === 0) {
                       return <p className="text-xs text-gray-600">Geen wissel mogelijk</p>;
                     }
 
                     // Find field player with most playing time (to be substituted out)
-                    const playerToSubOut = fieldPlayersG2
-                      .map(player => ({
-                        ...player,
-                        playingTime: matchState.playingTimes[player.id] || 0
-                      }))
-                      .sort((a, b) => b.playingTime - a.playingTime)[0];
+                    // If tied, pick randomly
+                    const sortedFieldPlayers = fieldPlayersG2.sort((a, b) => b.playingTime - a.playingTime);
+                    const maxPlayingTime = sortedFieldPlayers[0].playingTime;
+                    const playersWithMaxTime = sortedFieldPlayers.filter(p => p.playingTime === maxPlayingTime);
+                    const playerToSubOut = playersWithMaxTime[Math.floor(Math.random() * playersWithMaxTime.length)];
 
                     // Find bench player with least playing time (to substitute in)
-                    const playerToSubIn = benchPlayersG2
-                      .map(player => ({
-                        ...player,
-                        playingTime: matchState.playingTimes[player.id] || 0
-                      }))
-                      .sort((a, b) => a.playingTime - b.playingTime)[0];
+                    // If tied, pick randomly
+                    const sortedBenchPlayers = benchPlayersG2.sort((a, b) => a.playingTime - b.playingTime);
+                    const minPlayingTime = sortedBenchPlayers[0].playingTime;
+                    const playersWithMinTime = sortedBenchPlayers.filter(p => p.playingTime === minPlayingTime);
+                    const playerToSubIn = playersWithMinTime[Math.floor(Math.random() * playersWithMinTime.length)];
 
                     return (
                       <div className="flex items-center justify-between gap-3">
