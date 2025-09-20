@@ -388,6 +388,9 @@ export default function LiveMatchPage() {
 
                       const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
                       const groupNumber = isGroup1Position ? 1 : 2;
+                      const playingTime = matchState.playingTimes[player.id] || 0;
+                      const minutes = Math.floor(playingTime / 60);
+                      const seconds = playingTime % 60;
 
                       return (
                         <div
@@ -408,7 +411,8 @@ export default function LiveMatchPage() {
                           <div className={`text-xs text-center mt-1 font-bold text-gray-900 px-2 py-1 rounded shadow min-w-[60px] ${
                             isFirstSelected ? 'bg-yellow-300' : substituteMode.outPlayer?.playerId === player.id ? 'bg-blue-300' : 'bg-yellow-100'
                           }`}>
-                            {player.name}
+                            <div>{player.name}</div>
+                            <div className="text-xs font-normal">{minutes}:{seconds.toString().padStart(2, '0')}</div>
                           </div>
                         </div>
                       );
@@ -421,54 +425,67 @@ export default function LiveMatchPage() {
                 <div className="mt-4 text-center">
                   <div className="flex justify-center flex-wrap gap-4">
                     {/* Group 1 Substitutes */}
-                    {matchState.group1.slice(3).map((player) => (
-                      <div
-                        key={`sub-g1-${player.id}`}
-                        className="text-center cursor-pointer"
-                        onClick={() => handlePlayerClick(player.id, 'substitute', 1, false)}
-                      >
-                        <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
-                          swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
-                        } ${
-                          substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
-                        } ${
-                          swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
-                        }`}>
-                          W
-                        </div>
-                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
-                          swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
-                          substituteMode.outPlayer?.playerId === player.id ? 'bg-blue-300' : 'bg-yellow-100'
-                        }`}>
-                          {player.name}
-                        </div>
+                    {matchState.group1.slice(3).map((player) => {
+                      const playingTime = matchState.playingTimes[player.id] || 0;
+                      const minutes = Math.floor(playingTime / 60);
+                      const seconds = playingTime % 60;
+
+                      return (
+                        <div
+                          key={`sub-g1-${player.id}`}
+                          className="text-center cursor-pointer"
+                          onClick={() => handlePlayerClick(player.id, 'substitute', 1, false)}
+                        >
+                          <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                            swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          } ${
+                            substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
+                          } ${
+                            swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          }`}>
+                            W
+                          </div>
+                          <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                            swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
+                            substituteMode.outPlayer?.playerId === player.id ? 'bg-blue-300' : 'bg-yellow-100'
+                          }`}>
+                            <div>{player.name}</div>
+                            <div className="text-xs font-normal">{minutes}:{seconds.toString().padStart(2, '0')}</div>
+                          </div>
                       </div>
                     ))}
 
                     {/* Group 2 Substitutes */}
-                    {matchState.group2.slice(3).map((player) => (
-                      <div
-                        key={`sub-g2-${player.id}`}
-                        className="text-center cursor-pointer"
-                        onClick={() => handlePlayerClick(player.id, 'substitute', 2, false)}
-                      >
-                        <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
-                          swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
-                        } ${
-                          substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-green-400 ring-opacity-75' : ''
-                        } ${
-                          swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
-                        }`}>
-                          W
+                    {matchState.group2.slice(3).map((player) => {
+                      const playingTime = matchState.playingTimes[player.id] || 0;
+                      const minutes = Math.floor(playingTime / 60);
+                      const seconds = playingTime % 60;
+
+                      return (
+                        <div
+                          key={`sub-g2-${player.id}`}
+                          className="text-center cursor-pointer"
+                          onClick={() => handlePlayerClick(player.id, 'substitute', 2, false)}
+                        >
+                          <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                            swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
+                          } ${
+                            substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-green-400 ring-opacity-75' : ''
+                          } ${
+                            swapMode.active || substituteMode.active ? 'hover:ring-2 hover:ring-yellow-300' : ''
+                          }`}>
+                            W
+                          </div>
+                          <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
+                            swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
+                            substituteMode.outPlayer?.playerId === player.id ? 'bg-green-300' : 'bg-yellow-100'
+                          }`}>
+                            <div>{player.name}</div>
+                            <div className="text-xs font-normal">{minutes}:{seconds.toString().padStart(2, '0')}</div>
+                          </div>
                         </div>
-                        <div className={`text-xs font-bold mt-1 text-gray-900 px-2 py-1 rounded shadow ${
-                          swapMode.firstPlayer?.playerId === player.id ? 'bg-yellow-300' :
-                          substituteMode.outPlayer?.playerId === player.id ? 'bg-green-300' : 'bg-yellow-100'
-                        }`}>
-                          {player.name}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
