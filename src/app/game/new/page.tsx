@@ -528,14 +528,16 @@ export default function NewGamePage() {
               </button>
               <button
                 onClick={() => {
-                  // Initialize default groups: keeper always in group 1, others in group 2
+                  // Initialize default groups: keeper + keeper2 substitute in group 1, others in group 2
                   const defaultGroups: { [position: string]: 1 | 2 } = {
                     'keeper': 1,
                     'linksachter': 2,
                     'rechtsachter': 2,
                     'midden': 2,
                     'linksvoor': 2,
-                    'rechtsvoor': 2
+                    'rechtsvoor': 2,
+                    'substitute1': 1, // keeper2 substitute - always group 1
+                    'substitute2': 2  // second substitute - group 2
                   };
 
                   setGameSetup(prev => ({
