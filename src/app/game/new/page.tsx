@@ -242,7 +242,7 @@ export default function NewGamePage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8 pb-20 sm:pb-24">
+      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8 pb-16">
         {/* Stap 1: Spelers selecteren */}
         {gameSetup.step === 'select-players' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
@@ -606,7 +606,7 @@ export default function NewGamePage() {
 
       {/* Sticky Footer with Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
           <div className="flex justify-between items-center">
 
             {/* Step 1: Spelers selecteren */}
@@ -626,9 +626,9 @@ export default function NewGamePage() {
                       setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
                     }
                   }}
-                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  →
+                  ▶
                 </button>
               </>
             )}
@@ -638,9 +638,9 @@ export default function NewGamePage() {
               <>
                 <button
                   onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-players' }))}
-                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-gray-500 text-white w-10 h-10 rounded-full hover:bg-gray-600 font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  ←
+                  ◀
                 </button>
                 <button
                   onClick={() => {
@@ -671,9 +671,9 @@ export default function NewGamePage() {
                     }));
                   }}
                   disabled={!gameSetup.keeper1 || !gameSetup.keeper2}
-                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  →
+                  ▶
                 </button>
               </>
             )}
@@ -683,9 +683,9 @@ export default function NewGamePage() {
               <>
                 <button
                   onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
-                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-gray-500 text-white w-10 h-10 rounded-full hover:bg-gray-600 font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  ←
+                  ◀
                 </button>
                 <button
                   onClick={() => {
@@ -706,9 +706,9 @@ export default function NewGamePage() {
                       positionGroups: defaultGroups
                     }));
                   }}
-                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  →
+                  ▶
                 </button>
               </>
             )}
@@ -718,9 +718,9 @@ export default function NewGamePage() {
               <>
                 <button
                   onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
-                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-gray-500 text-white w-10 h-10 rounded-full hover:bg-gray-600 font-bold transition-all text-lg flex items-center justify-center"
                 >
-                  ←
+                  ◀
                 </button>
                 <button
                   onClick={() => {
@@ -859,7 +859,7 @@ export default function NewGamePage() {
                     const group2Count = allPositions.filter(([, group]) => group === 2).length;
                     return group1Count !== 4 || group2Count !== 4;
                   })()}
-                  className="bg-green-600 text-white w-12 h-12 rounded-full hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-xl flex items-center justify-center"
+                  className="bg-green-600 text-white w-10 h-10 rounded-full hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-lg flex items-center justify-center"
                 >
                   ▶
                 </button>
