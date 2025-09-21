@@ -383,7 +383,7 @@ export default function LiveMatchPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Left Column: Field */}
@@ -732,24 +732,30 @@ export default function LiveMatchPage() {
           {/* Right Column: Game Controls */}
           <div className="space-y-4">
 
-            {/* Navigation */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <button
-                onClick={() => {
-                  // Clear match data and go back to step 4
-                  localStorage.removeItem('currentMatch');
-                  window.location.href = '/game/new';
-                }}
-                className="w-full bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-              >
-                ← Terug naar Wisselgroepen
-              </button>
-            </div>
 
           </div>
 
         </div>
       </main>
+
+      {/* Sticky Footer with Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => {
+                // Clear match data and go back to step 4
+                localStorage.removeItem('currentMatch');
+                window.location.href = '/game/new';
+              }}
+              className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+            >
+              ←
+            </button>
+            <div></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

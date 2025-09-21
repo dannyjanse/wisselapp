@@ -242,7 +242,7 @@ export default function NewGamePage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-3 px-3 sm:py-6 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {/* Stap 1: Spelers selecteren */}
         {gameSetup.step === 'select-players' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
@@ -287,25 +287,6 @@ export default function NewGamePage() {
               </div>
             )}
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => {
-                  const playerCount = gameSetup.selectedPlayers.length;
-                  if (playerCount === 6) {
-                    alert('Je hebt geen wissels vandaag dus ook geen strategie nodig');
-                  } else if (playerCount === 7 || playerCount === 9) {
-                    alert('Wisselstrategie voor dit aantal spelers volgt later');
-                  } else if (playerCount >= 10) {
-                    alert('Veel te veel wissels, reduceer aantal spelers');
-                  } else if (playerCount === 8) {
-                    setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
-                  }
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
-              >
-                Volgende
-              </button>
-            </div>
           </div>
         )}
 
@@ -388,22 +369,6 @@ export default function NewGamePage() {
               ))}
             </div>
 
-            {gameSetup.keeper1 && gameSetup.keeper2 && (
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-players' }))}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-                >
-                  Vorige
-                </button>
-                <button
-                  onClick={proceedToPositions}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
-                >
-                  Volgende
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -519,38 +484,6 @@ export default function NewGamePage() {
               </div>
             </div>
 
-            <div className="flex justify-between">
-              <button
-                onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-              >
-                Vorige
-              </button>
-              <button
-                onClick={() => {
-                  // Initialize default groups: perfect 4-4 distribution
-                  const defaultGroups: { [position: string]: 1 | 2 } = {
-                    'keeper': 1,          // Groep 1: keeper
-                    'linksachter': 1,     // Groep 1: linksachter
-                    'linksvoor': 1,       // Groep 1: linksvoor
-                    'substitute1': 1,     // Groep 1: substitute1 (keeper2) - locked
-                    'rechtsachter': 2,    // Groep 2: rechtsachter
-                    'midden': 2,          // Groep 2: midden
-                    'rechtsvoor': 2,      // Groep 2: rechtsvoor
-                    'substitute2': 2      // Groep 2: substitute2
-                  };
-
-                  setGameSetup(prev => ({
-                    ...prev,
-                    step: 'create-groups',
-                    positionGroups: defaultGroups
-                  }));
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all text-sm"
-              >
-                Volgende
-              </button>
-            </div>
           </div>
         )}
 
@@ -666,162 +599,276 @@ export default function NewGamePage() {
               </div>
             </div>
 
-            <div className="flex justify-between">
-              <button
-                onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
-              >
-                Vorige
-              </button>
-              <button
-                onClick={() => {
-                  // Use same counting logic as disabled check
-                  const allPositions = Object.entries(gameSetup.positionGroups);
-                  const group1Count = allPositions.filter(([, group]) => group === 1).length;
-                  const group2Count = allPositions.filter(([, group]) => group === 2).length;
-
-                  if (group1Count === 4 && group2Count === 4) {
-                    // Create exact structure that live match expects for substitution logic
-                    // Group 1: [keeper, 2 field players, 1 substitute (keeper2)]
-                    // Group 2: [3 field players, 1 substitute]
-
-                    // Helper function to find player by position
-                    const findPlayerByPosition = (position: string): Player | null => {
-                      // For substitute positions, we need to map substitute1/substitute2 to actual players
-                      if (position.startsWith('substitute')) {
-                        // Get all substitute players from playerPositions
-                        const substitutePlayers = Object.keys(gameSetup.playerPositions)
-                          .filter(pid => gameSetup.playerPositions[pid] === 'substitute')
-                          .map(pid => gameSetup.selectedPlayers.find(p => p.id === pid))
-                          .filter(p => p !== undefined);
-
-                        // Extract index from substitute1, substitute2, etc.
-                        const index = parseInt(position.replace('substitute', '')) - 1;
-                        return substitutePlayers[index] || null;
-                      }
-
-                      // For regular field positions, find directly
-                      const playerId = Object.keys(gameSetup.playerPositions).find(
-                        pid => gameSetup.playerPositions[pid] === position
-                      );
-                      return playerId ? gameSetup.selectedPlayers.find(p => p.id === playerId) || null : null;
-                    };
-
-                    // Build groups based on actual positionGroups assignments
-                    const group1Players: Player[] = [];
-                    const group2Players: Player[] = [];
-                    const group1Positions: string[] = [];
-                    const group2Positions: string[] = [];
-
-                    // Separate positions by group assignment
-                    const group1FieldPositions: string[] = [];
-                    const group2FieldPositions: string[] = [];
-                    const group1SubPositions: string[] = [];
-                    const group2SubPositions: string[] = [];
-
-                    Object.entries(gameSetup.positionGroups).forEach(([position, group]) => {
-                      if (position.startsWith('substitute')) {
-                        if (group === 1) {
-                          group1SubPositions.push(position);
-                        } else {
-                          group2SubPositions.push(position);
-                        }
-                      } else if (position !== 'keeper') {
-                        if (group === 1) {
-                          group1FieldPositions.push(position);
-                        } else {
-                          group2FieldPositions.push(position);
-                        }
-                      }
-                    });
-
-                    // Build Group 1: [keeper, field_players..., substitutes...]
-                    // Always start with keeper
-                    if (gameSetup.keeper1) {
-                      group1Players.push(gameSetup.keeper1);
-                      group1Positions.push('keeper');
-                    }
-
-                    // Add group 1 field players
-                    group1FieldPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group1Players.push(player);
-                        group1Positions.push(position);
-                      }
-                    });
-
-                    // Add group 1 substitutes (including keeper2)
-                    group1SubPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group1Players.push(player);
-                        group1Positions.push(position);
-                      } else if (position === 'substitute1' && gameSetup.keeper2) {
-                        // Fallback: keeper2 is always substitute1 in group 1
-                        group1Players.push(gameSetup.keeper2);
-                        group1Positions.push(position);
-                      }
-                    });
-
-                    // Build Group 2: [field_players..., substitutes...]
-                    // Add group 2 field players
-                    group2FieldPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group2Players.push(player);
-                        group2Positions.push(position);
-                      }
-                    });
-
-                    // Add group 2 substitutes
-                    group2SubPositions.forEach(position => {
-                      const player = findPlayerByPosition(position);
-                      if (player) {
-                        group2Players.push(player);
-                        group2Positions.push(position);
-                      }
-                    });
-
-                    // Validation
-                    if (group1Players.length !== 4 || group2Players.length !== 4) {
-                      alert(`Fout: Groep 1 heeft ${group1Players.length} spelers, Groep 2 heeft ${group2Players.length} spelers. Beide groepen moeten 4 spelers hebben.`);
-                      return;
-                    }
-
-                    // Create match setup with exact structure
-                    const matchSetup = {
-                      selectedPlayers: gameSetup.selectedPlayers,
-                      keeper1: gameSetup.keeper1,
-                      keeper2: gameSetup.keeper2,
-                      group1: group1Players,
-                      group2: group2Players,
-                      group1Positions,
-                      group2Positions,
-                      timestamp: Date.now()
-                    };
-
-                    localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
-                    window.location.href = '/game/live';
-                  }
-                }}
-disabled={(() => {
-                  // Count all positions including keeper and substitutes
-                  const allPositions = Object.entries(gameSetup.positionGroups);
-                  const group1Count = allPositions.filter(([, group]) => group === 1).length;
-                  const group2Count = allPositions.filter(([, group]) => group === 2).length;
-
-                  return group1Count !== 4 || group2Count !== 4;
-                })()}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-bold transition-all text-sm"
-              >
-                Start Wedstrijd
-              </button>
-            </div>
           </div>
         )}
 
       </main>
+
+      {/* Sticky Footer with Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex justify-between items-center">
+
+            {/* Step 1: Spelers selecteren */}
+            {gameSetup.step === 'select-players' && (
+              <>
+                <div></div>
+                <button
+                  onClick={() => {
+                    const playerCount = gameSetup.selectedPlayers.length;
+                    if (playerCount === 6) {
+                      alert('Je hebt geen wissels vandaag dus ook geen strategie nodig');
+                    } else if (playerCount === 7 || playerCount === 9) {
+                      alert('Wisselstrategie voor dit aantal spelers volgt later');
+                    } else if (playerCount >= 10) {
+                      alert('Veel te veel wissels, reduceer aantal spelers');
+                    } else if (playerCount === 8) {
+                      setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
+                    }
+                  }}
+                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  →
+                </button>
+              </>
+            )}
+
+            {/* Step 2: Keepers selecteren */}
+            {gameSetup.step === 'select-keepers' && (
+              <>
+                <button
+                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-players' }))}
+                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    if (!gameSetup.keeper1 || !gameSetup.keeper2) {
+                      alert('Selecteer beide keepers voordat je verder gaat');
+                      return;
+                    }
+                    const defaultPositions: { [playerId: string]: string } = {};
+
+                    gameSetup.selectedPlayers.forEach((player, index) => {
+                      if (player.id === gameSetup.keeper1?.id) {
+                        defaultPositions[player.id] = 'keeper';
+                      } else if (player.id === gameSetup.keeper2?.id) {
+                        defaultPositions[player.id] = 'substitute';
+                      } else {
+                        const fieldPositions = ['linksachter', 'rechtsachter', 'midden', 'linksvoor', 'rechtsvoor', 'substitute'];
+                        const assignedPositions = Object.values(defaultPositions);
+                        const availablePositions = fieldPositions.filter(pos => !assignedPositions.includes(pos));
+                        defaultPositions[player.id] = availablePositions[0] || 'substitute';
+                      }
+                    });
+
+                    setGameSetup(prev => ({
+                      ...prev,
+                      step: 'assign-positions',
+                      playerPositions: defaultPositions,
+                      positionGroups: {}
+                    }));
+                  }}
+                  disabled={!gameSetup.keeper1 || !gameSetup.keeper2}
+                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  →
+                </button>
+              </>
+            )}
+
+            {/* Step 3: Posities toewijzen */}
+            {gameSetup.step === 'assign-positions' && (
+              <>
+                <button
+                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'select-keepers' }))}
+                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    const defaultGroups: { [position: string]: 1 | 2 } = {
+                      'keeper': 1,
+                      'linksachter': 1,
+                      'linksvoor': 1,
+                      'substitute1': 1,
+                      'rechtsachter': 2,
+                      'midden': 2,
+                      'rechtsvoor': 2,
+                      'substitute2': 2
+                    };
+
+                    setGameSetup(prev => ({
+                      ...prev,
+                      step: 'create-groups',
+                      positionGroups: defaultGroups
+                    }));
+                  }}
+                  className="bg-blue-600 text-white w-12 h-12 rounded-full hover:bg-blue-700 font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  →
+                </button>
+              </>
+            )}
+
+            {/* Step 4: Groepen maken */}
+            {gameSetup.step === 'create-groups' && (
+              <>
+                <button
+                  onClick={() => setGameSetup(prev => ({ ...prev, step: 'assign-positions' }))}
+                  className="bg-gray-500 text-white w-12 h-12 rounded-full hover:bg-gray-600 font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    const allPositions = Object.entries(gameSetup.positionGroups);
+                    const group1Count = allPositions.filter(([, group]) => group === 1).length;
+                    const group2Count = allPositions.filter(([, group]) => group === 2).length;
+
+                    if (group1Count === 4 && group2Count === 4) {
+                      // Create exact structure that live match expects for substitution logic
+                      // Group 1: [keeper, 2 field players, 1 substitute (keeper2)]
+                      // Group 2: [3 field players, 1 substitute]
+
+                      // Helper function to find player by position
+                      const findPlayerByPosition = (position: string): Player | null => {
+                        // For substitute positions, we need to map substitute1/substitute2 to actual players
+                        if (position.startsWith('substitute')) {
+                          // Get all substitute players from playerPositions
+                          const substitutePlayers = Object.keys(gameSetup.playerPositions)
+                            .filter(pid => gameSetup.playerPositions[pid] === 'substitute')
+                            .map(pid => gameSetup.selectedPlayers.find(p => p.id === pid))
+                            .filter(p => p !== undefined);
+
+                          // Extract index from substitute1, substitute2, etc.
+                          const index = parseInt(position.replace('substitute', '')) - 1;
+                          return substitutePlayers[index] || null;
+                        }
+
+                        // For regular field positions, find directly
+                        const playerId = Object.keys(gameSetup.playerPositions).find(
+                          pid => gameSetup.playerPositions[pid] === position
+                        );
+                        return playerId ? gameSetup.selectedPlayers.find(p => p.id === playerId) || null : null;
+                      };
+
+                      // Build groups based on actual positionGroups assignments
+                      const group1Players: Player[] = [];
+                      const group2Players: Player[] = [];
+                      const group1Positions: string[] = [];
+                      const group2Positions: string[] = [];
+
+                      // Separate positions by group assignment
+                      const group1FieldPositions: string[] = [];
+                      const group2FieldPositions: string[] = [];
+                      const group1SubPositions: string[] = [];
+                      const group2SubPositions: string[] = [];
+
+                      Object.entries(gameSetup.positionGroups).forEach(([position, group]) => {
+                        if (position.startsWith('substitute')) {
+                          if (group === 1) {
+                            group1SubPositions.push(position);
+                          } else {
+                            group2SubPositions.push(position);
+                          }
+                        } else if (position !== 'keeper') {
+                          if (group === 1) {
+                            group1FieldPositions.push(position);
+                          } else {
+                            group2FieldPositions.push(position);
+                          }
+                        }
+                      });
+
+                      // Build Group 1: [keeper, field_players..., substitutes...]
+                      // Always start with keeper
+                      if (gameSetup.keeper1) {
+                        group1Players.push(gameSetup.keeper1);
+                        group1Positions.push('keeper');
+                      }
+
+                      // Add group 1 field players
+                      group1FieldPositions.forEach(position => {
+                        const player = findPlayerByPosition(position);
+                        if (player) {
+                          group1Players.push(player);
+                          group1Positions.push(position);
+                        }
+                      });
+
+                      // Add group 1 substitutes (including keeper2)
+                      group1SubPositions.forEach(position => {
+                        const player = findPlayerByPosition(position);
+                        if (player) {
+                          group1Players.push(player);
+                          group1Positions.push(position);
+                        } else if (position === 'substitute1' && gameSetup.keeper2) {
+                          // Fallback: keeper2 is always substitute1 in group 1
+                          group1Players.push(gameSetup.keeper2);
+                          group1Positions.push(position);
+                        }
+                      });
+
+                      // Build Group 2: [field_players..., substitutes...]
+                      // Add group 2 field players
+                      group2FieldPositions.forEach(position => {
+                        const player = findPlayerByPosition(position);
+                        if (player) {
+                          group2Players.push(player);
+                          group2Positions.push(position);
+                        }
+                      });
+
+                      // Add group 2 substitutes
+                      group2SubPositions.forEach(position => {
+                        const player = findPlayerByPosition(position);
+                        if (player) {
+                          group2Players.push(player);
+                          group2Positions.push(position);
+                        }
+                      });
+
+                      // Validation
+                      if (group1Players.length !== 4 || group2Players.length !== 4) {
+                        alert(`Fout: Groep 1 heeft ${group1Players.length} spelers, Groep 2 heeft ${group2Players.length} spelers. Beide groepen moeten 4 spelers hebben.`);
+                        return;
+                      }
+
+                      // Create match setup with exact structure
+                      const matchSetup = {
+                        selectedPlayers: gameSetup.selectedPlayers,
+                        keeper1: gameSetup.keeper1,
+                        keeper2: gameSetup.keeper2,
+                        group1: group1Players,
+                        group2: group2Players,
+                        group1Positions,
+                        group2Positions,
+                        timestamp: Date.now()
+                      };
+
+                      localStorage.setItem('currentMatch', JSON.stringify(matchSetup));
+                      window.location.href = '/game/live';
+                    }
+                  }}
+                  disabled={(() => {
+                    const allPositions = Object.entries(gameSetup.positionGroups);
+                    const group1Count = allPositions.filter(([, group]) => group === 1).length;
+                    const group2Count = allPositions.filter(([, group]) => group === 2).length;
+                    return group1Count !== 4 || group2Count !== 4;
+                  })()}
+                  className="bg-green-600 text-white w-12 h-12 rounded-full hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-xl flex items-center justify-center"
+                >
+                  ▶
+                </button>
+              </>
+            )}
+
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
