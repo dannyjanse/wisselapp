@@ -327,7 +327,6 @@ export default function LiveMatchPage() {
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
                   {formatTime(matchState.matchTime)}
                 </div>
-                <div className="text-xs text-gray-600">Wedstrijdtijd</div>
               </div>
               <button
                 onClick={toggleMatchTimer}
