@@ -152,8 +152,8 @@ export default function LiveMatchPage() {
       // Adjust playing times for field players (both groups, first 3 players)
       const updatedPlayingTimes = { ...prev.playingTimes };
 
-      // Group 1 field players (positions 1, 2, 3)
-      prev.group1.slice(1, 4).forEach(player => {
+      // Group 1 field players (positions 0, 1, 2, 3 - including keeper)
+      prev.group1.slice(0, 4).forEach(player => {
         updatedPlayingTimes[player.id] = Math.max(0, updatedPlayingTimes[player.id] + timeChangeInSeconds);
       });
 
