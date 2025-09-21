@@ -417,12 +417,12 @@ export default function LiveMatchPage() {
                         : 'bg-green-500 border-green-700';
 
                       const positions = {
-                        'keeper': { bottom: '8%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
-                        'linksachter': { bottom: '25%', left: '15%', label: 'LA' },
-                        'rechtsachter': { bottom: '25%', right: '15%', label: 'RA' },
-                        'midden': { top: '40%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
-                        'linksvoor': { top: '15%', left: '15%', label: 'LV' },
-                        'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
+                        'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
+                        'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+                        'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+                        'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+                        'linksvoor': { top: '8%', left: '15%', label: 'LV' },
+                        'rechtsvoor': { top: '8%', right: '15%', label: 'RV' }
                       };
 
                       const pos = positions[position as keyof typeof positions];
