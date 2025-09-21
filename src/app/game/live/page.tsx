@@ -417,12 +417,12 @@ export default function LiveMatchPage() {
                         : 'bg-green-500 border-green-700';
 
                       const positions = {
-                        'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
-                        'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
-                        'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
-                        'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
-                        'linksvoor': { top: '8%', left: '15%', label: 'LV' },
-                        'rechtsvoor': { top: '8%', right: '15%', label: 'RV' }
+                        'keeper': { bottom: '8%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
+                        'linksachter': { bottom: '25%', left: '15%', label: 'LA' },
+                        'rechtsachter': { bottom: '25%', right: '15%', label: 'RA' },
+                        'midden': { top: '40%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+                        'linksvoor': { top: '15%', left: '15%', label: 'LV' },
+                        'rechtsvoor': { top: '15%', right: '15%', label: 'RV' }
                       };
 
                       const pos = positions[position as keyof typeof positions];
@@ -441,7 +441,7 @@ export default function LiveMatchPage() {
                           style={pos}
                           onClick={() => handlePlayerClick(player.id, position, groupNumber, true)}
                         >
-                          <div className={`${playerColorClasses} border-2 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
+                          <div className={`${playerColorClasses} border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
@@ -536,7 +536,6 @@ export default function LiveMatchPage() {
 
             {/* Next Substitution Suggestions */}
             <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">🔄 Voorgestelde Volgende Wissel</h3>
               <div className="space-y-4">
 
                 {/* Group 1 Suggestion */}
@@ -581,7 +580,7 @@ export default function LiveMatchPage() {
                     return (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-bold text-gray-900">
-                          {playerToSubIn.name} → {playerToSubOut.name}
+                          Volgende: {playerToSubIn.name} → {playerToSubOut.name}
                         </span>
                         <button
                           onClick={() => {
@@ -651,7 +650,7 @@ export default function LiveMatchPage() {
                     return (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-bold text-gray-900">
-                          {playerToSubIn.name} → {playerToSubOut.name}
+                          Volgende: {playerToSubIn.name} → {playerToSubOut.name}
                         </span>
                         <button
                           onClick={() => {
