@@ -149,15 +149,15 @@ export default function LiveMatchPage() {
       const timeChangeInSeconds = minutes * 60;
       const newMatchTime = Math.max(0, prev.matchTime + timeChangeInSeconds);
 
-      // Adjust playing times for field players (both groups, first 3 players)
+      // Adjust playing times for field players only (first 3 of each group)
       const updatedPlayingTimes = { ...prev.playingTimes };
 
-      // Group 1 field players (positions 0, 1, 2, 3 - including keeper)
-      prev.group1.slice(0, 4).forEach(player => {
+      // Group 1 field players (positions 0, 1, 2 - including keeper, excluding substitute)
+      prev.group1.slice(0, 3).forEach(player => {
         updatedPlayingTimes[player.id] = Math.max(0, updatedPlayingTimes[player.id] + timeChangeInSeconds);
       });
 
-      // Group 2 field players (positions 0, 1, 2)
+      // Group 2 field players (positions 0, 1, 2 - excluding substitute)
       prev.group2.slice(0, 3).forEach(player => {
         updatedPlayingTimes[player.id] = Math.max(0, updatedPlayingTimes[player.id] + timeChangeInSeconds);
       });
