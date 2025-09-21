@@ -532,11 +532,9 @@ export default function LiveMatchPage() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Next Substitution Suggestions */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <div className="space-y-4">
+              {/* Substitution Suggestions */}
+              <div className="mt-4 space-y-4">
 
                 {/* Group 1 Suggestion */}
                 <div className="border border-blue-200 rounded-lg p-2 bg-blue-50">
@@ -589,19 +587,43 @@ export default function LiveMatchPage() {
                             const inPlayerIndex = matchState.group1.findIndex(p => p.id === playerToSubIn.id);
 
                             if (outPlayerIndex !== -1 && inPlayerIndex !== -1) {
-                              // Create new group1 array with swapped positions
-                              const newGroup1 = [...matchState.group1];
-                              [newGroup1[outPlayerIndex], newGroup1[inPlayerIndex]] = [newGroup1[inPlayerIndex], newGroup1[outPlayerIndex]];
+                              setMatchState(prev => {
+                                if (!prev) return prev;
 
-                              setMatchState(prev => prev ? ({
-                                ...prev,
-                                group1: newGroup1
-                              }) : null);
+                                // Calculate current playing times
+                                const now = Date.now();
+                                const timeDiff = (now - prev.lastSubTime) / 1000;
+
+                                // Update playing times for current field players before substitution
+                                const updatedPlayingTimes = { ...prev.playingTimes };
+
+                                // Update times for group 1 field players (positions 0-2: keeper + 2 field players)
+                                prev.group1.slice(0, 3).forEach(player => {
+                                  updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + timeDiff;
+                                });
+
+                                // Update times for group 2 field players (positions 0-2)
+                                prev.group2.slice(0, 3).forEach(player => {
+                                  updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + timeDiff;
+                                });
+
+                                // Perform the substitution
+                                const newGroup1 = [...prev.group1];
+                                [newGroup1[outPlayerIndex], newGroup1[inPlayerIndex]] = [newGroup1[inPlayerIndex], newGroup1[outPlayerIndex]];
+
+                                return {
+                                  ...prev,
+                                  group1: newGroup1,
+                                  playingTimes: updatedPlayingTimes,
+                                  lastSubTime: now,
+                                  executedSubstitutions: [...prev.executedSubstitutions, Date.now()]
+                                };
+                              });
                             }
                           }}
-                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors whitespace-nowrap"
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-colors"
                         >
-                          Doorvoeren
+                          Wissel
                         </button>
                       </div>
                     );
@@ -611,9 +633,9 @@ export default function LiveMatchPage() {
                 {/* Group 2 Suggestion */}
                 <div className="border border-green-200 rounded-lg p-2 bg-green-50">
                   {(() => {
-                    // Get field players (positions 0-2, Group 2 has no keeper)
+                    // Get field players (positions 0-2, all field players)
                     const fieldPlayersG2 = matchState.group2
-                      .slice(0, 3) // Positions 0, 1 and 2 (all field players)
+                      .slice(0, 3) // First 3 positions are field players
                       .map(player => ({
                         ...player,
                         playingTime: matchState.playingTimes[player.id] || 0
@@ -659,24 +681,49 @@ export default function LiveMatchPage() {
                             const inPlayerIndex = matchState.group2.findIndex(p => p.id === playerToSubIn.id);
 
                             if (outPlayerIndex !== -1 && inPlayerIndex !== -1) {
-                              // Create new group2 array with swapped positions
-                              const newGroup2 = [...matchState.group2];
-                              [newGroup2[outPlayerIndex], newGroup2[inPlayerIndex]] = [newGroup2[inPlayerIndex], newGroup2[outPlayerIndex]];
+                              setMatchState(prev => {
+                                if (!prev) return prev;
 
-                              setMatchState(prev => prev ? ({
-                                ...prev,
-                                group2: newGroup2
-                              }) : null);
+                                // Calculate current playing times
+                                const now = Date.now();
+                                const timeDiff = (now - prev.lastSubTime) / 1000;
+
+                                // Update playing times for current field players before substitution
+                                const updatedPlayingTimes = { ...prev.playingTimes };
+
+                                // Update times for group 1 field players (positions 0-2: keeper + 2 field players)
+                                prev.group1.slice(0, 3).forEach(player => {
+                                  updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + timeDiff;
+                                });
+
+                                // Update times for group 2 field players (positions 0-2)
+                                prev.group2.slice(0, 3).forEach(player => {
+                                  updatedPlayingTimes[player.id] = (updatedPlayingTimes[player.id] || 0) + timeDiff;
+                                });
+
+                                // Perform the substitution
+                                const newGroup2 = [...prev.group2];
+                                [newGroup2[outPlayerIndex], newGroup2[inPlayerIndex]] = [newGroup2[inPlayerIndex], newGroup2[outPlayerIndex]];
+
+                                return {
+                                  ...prev,
+                                  group2: newGroup2,
+                                  playingTimes: updatedPlayingTimes,
+                                  lastSubTime: now,
+                                  executedSubstitutions: [...prev.executedSubstitutions, Date.now()]
+                                };
+                              });
                             }
                           }}
-                          className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors whitespace-nowrap"
+                          className="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-green-700 transition-colors"
                         >
-                          Doorvoeren
+                          Wissel
                         </button>
                       </div>
                     );
                   })()}
                 </div>
+
               </div>
             </div>
 
@@ -685,7 +732,19 @@ export default function LiveMatchPage() {
           {/* Right Column: Game Controls */}
           <div className="space-y-4">
 
-
+            {/* Navigation */}
+            <div className="bg-white rounded-lg shadow-lg p-4">
+              <button
+                onClick={() => {
+                  // Clear match data and go back to step 4
+                  localStorage.removeItem('currentMatch');
+                  window.location.href = '/game/new';
+                }}
+                className="w-full bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 font-bold transition-all text-sm"
+              >
+                ← Terug naar Wisselgroepen
+              </button>
+            </div>
 
           </div>
 
