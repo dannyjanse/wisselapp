@@ -687,6 +687,20 @@ export default function NewGamePage() {
 
                     // Helper function to find player by position
                     const findPlayerByPosition = (position: string): Player | null => {
+                      // For substitute positions, we need to map substitute1/substitute2 to actual players
+                      if (position.startsWith('substitute')) {
+                        // Get all substitute players from playerPositions
+                        const substitutePlayers = Object.keys(gameSetup.playerPositions)
+                          .filter(pid => gameSetup.playerPositions[pid] === 'substitute')
+                          .map(pid => gameSetup.selectedPlayers.find(p => p.id === pid))
+                          .filter(p => p !== undefined);
+
+                        // Extract index from substitute1, substitute2, etc.
+                        const index = parseInt(position.replace('substitute', '')) - 1;
+                        return substitutePlayers[index] || null;
+                      }
+
+                      // For regular field positions, find directly
                       const playerId = Object.keys(gameSetup.playerPositions).find(
                         pid => gameSetup.playerPositions[pid] === position
                       );
