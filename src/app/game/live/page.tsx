@@ -140,6 +140,36 @@ export default function LiveMatchPage() {
     } : null);
   };
 
+  const adjustMatchTime = (minutes: number) => {
+    if (!matchState) return;
+
+    setMatchState(prev => {
+      if (!prev) return prev;
+
+      const timeChangeInSeconds = minutes * 60;
+      const newMatchTime = Math.max(0, prev.matchTime + timeChangeInSeconds);
+
+      // Adjust playing times for field players (both groups, first 3 players)
+      const updatedPlayingTimes = { ...prev.playingTimes };
+
+      // Group 1 field players (positions 1, 2, 3)
+      prev.group1.slice(1, 4).forEach(player => {
+        updatedPlayingTimes[player.id] = Math.max(0, updatedPlayingTimes[player.id] + timeChangeInSeconds);
+      });
+
+      // Group 2 field players (positions 0, 1, 2)
+      prev.group2.slice(0, 3).forEach(player => {
+        updatedPlayingTimes[player.id] = Math.max(0, updatedPlayingTimes[player.id] + timeChangeInSeconds);
+      });
+
+      return {
+        ...prev,
+        matchTime: newMatchTime,
+        playingTimes: updatedPlayingTimes
+      };
+    });
+  };
+
 
 
   const handlePlayerClick = (playerId: string, position: string, groupNumber: number, isOnField: boolean) => {
@@ -324,9 +354,23 @@ export default function LiveMatchPage() {
                 🔄
               </button>
               <div className="text-center">
+                <button
+                  onClick={() => adjustMatchTime(1)}
+                  className="text-gray-600 hover:text-gray-800 transition-all text-sm mb-1 block mx-auto"
+                  title="Voeg 1 minuut toe"
+                >
+                  +
+                </button>
                 <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
                   {formatTime(matchState.matchTime)}
                 </div>
+                <button
+                  onClick={() => adjustMatchTime(-1)}
+                  className="text-gray-600 hover:text-gray-800 transition-all text-sm mt-1 block mx-auto"
+                  title="Trek 1 minuut af"
+                >
+                  −
+                </button>
               </div>
               <button
                 onClick={toggleMatchTimer}
