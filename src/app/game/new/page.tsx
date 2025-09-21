@@ -247,7 +247,7 @@ export default function NewGamePage() {
         {gameSetup.step === 'select-players' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
-              Selecteer Spelers voor de Wedstrijd
+              Selecteer spelers
             </h2>
             <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
               {gameSetup.selectedPlayers.length} spelers geselecteerd. Aantal bepaalt de wisselstrategie.
@@ -255,7 +255,7 @@ export default function NewGamePage() {
 
 
             <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-900">Spelers (klik om te deselecteren)</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {players.map((player) => {
                 const isSelected = gameSetup.selectedPlayers.some(p => p.id === player.id);
 
@@ -263,7 +263,7 @@ export default function NewGamePage() {
                   <button
                     key={player.id}
                     onClick={() => togglePlayerSelection(player)}
-                    className={`p-2 sm:p-3 rounded border text-left transition-all shadow-sm ${
+                    className={`p-1 sm:p-2 rounded border text-left transition-all shadow-sm ${
                       isSelected
                         ? 'bg-blue-200 border-blue-400 text-blue-900'
                         : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
@@ -314,7 +314,7 @@ export default function NewGamePage() {
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Selecteer Keepers</h2>
             <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
-              Kies welke spelers keeper zijn in de eerste en tweede helft.
+              Kies keepers voor de eerste en tweede helft.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -410,7 +410,7 @@ export default function NewGamePage() {
         {/* Stap 3: Posities Toewijzen */}
         {gameSetup.step === 'assign-positions' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Posities Toewijzen</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Maak basisopstelling</h2>
             <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
               Klik op spelers om ze van positie te wisselen. Keepers kunnen niet worden verplaatst.
             </p>
@@ -557,7 +557,7 @@ export default function NewGamePage() {
         {/* Stap 4: Groepen maken */}
         {gameSetup.step === 'create-groups' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Groepen Maken</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Maak wisselgroepen</h2>
             <p className="text-sm sm:text-base text-gray-900 font-medium mb-4 sm:mb-6">
               Klik op posities om ze toe te wijzen aan groep 1 (blauw) of groep 2 (groen). Maak twee groepen van 4 spelers. Keepers blijven in groep 1.
             </p>

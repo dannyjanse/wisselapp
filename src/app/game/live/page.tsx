@@ -441,7 +441,7 @@ export default function LiveMatchPage() {
                           style={pos}
                           onClick={() => handlePlayerClick(player.id, position, groupNumber, true)}
                         >
-                          <div className={`${playerColorClasses} border-2 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
+                          <div className={`${playerColorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all hover:scale-110 ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
@@ -478,7 +478,7 @@ export default function LiveMatchPage() {
                           className="text-center cursor-pointer"
                           onClick={() => handlePlayerClick(player.id, 'substitute', 1, false)}
                         >
-                          <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                          <div className={`bg-blue-400 border-2 border-blue-600 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
                             swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-blue-400 ring-opacity-75' : ''
@@ -510,7 +510,7 @@ export default function LiveMatchPage() {
                           className="text-center cursor-pointer"
                           onClick={() => handlePlayerClick(player.id, 'substitute', 2, false)}
                         >
-                          <div className={`bg-green-500 border-2 border-green-700 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
+                          <div className={`bg-green-500 border-2 border-green-700 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all hover:scale-110 ${
                             swapMode.firstPlayer?.playerId === player.id ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             substituteMode.outPlayer?.playerId === player.id ? 'ring-4 ring-green-400 ring-opacity-75' : ''

@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center py-4 sm:py-6 min-h-[80px]">
+          <div className="flex justify-between items-center py-4 sm:py-6 min-h-[80px]">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Image
                 src="/Logo.jpg"
@@ -17,6 +17,7 @@ export default function Home() {
               />
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wisselapp</h1>
             </div>
+            <div></div>
           </div>
         </div>
       </header>
