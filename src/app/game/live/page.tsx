@@ -364,7 +364,7 @@ export default function LiveMatchPage() {
                   className="object-contain"
                 />
               </Link>
-              <h1 className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">Live Wedstrijd</h1>
+              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Live Wedstrijd</h1>
             </div>
 
             {/* Timer in Header */}

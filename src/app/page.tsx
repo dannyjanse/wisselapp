@@ -39,7 +39,7 @@ export default function Home() {
               <p className="text-gray-600 mb-4">
                 Start een nieuwe wedstrijd. Aantal spelers bepaalt de wisselstrategie.
               </p>
-              <Link href="/game/new" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-block">
+              <Link href="/game/new" className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors inline-block">
                 Wedstrijd Starten
               </Link>
             </div>

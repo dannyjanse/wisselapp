@@ -265,7 +265,7 @@ export default function NewGamePage() {
                     onClick={() => togglePlayerSelection(player)}
                     className={`p-1 sm:p-2 rounded border text-left transition-all shadow-sm ${
                       isSelected
-                        ? 'bg-green-200 border-green-400 text-green-900'
+                        ? 'bg-green-200 border-green-300 text-green-900'
                         : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
                     }`}
                   >
@@ -293,7 +293,7 @@ export default function NewGamePage() {
         {/* Stap 2: Keepers selecteren */}
         {gameSetup.step === 'select-keepers' && (
           <div className="bg-white rounded-lg shadow-lg p-3 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Selecteer Keepers</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Selecteer keepers</h2>
             <p className="text-sm sm:text-base text-gray-900 mb-4 sm:mb-6 font-medium">
               Kies keepers voor de eerste en tweede helft.
             </p>
@@ -617,7 +617,16 @@ export default function NewGamePage() {
             {/* Step 1: Spelers selecteren */}
             {gameSetup.step === 'select-players' && (
               <>
-                <div></div>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('gameSetup');
+                    localStorage.removeItem('currentMatch');
+                    window.location.href = '/';
+                  }}
+                  className="bg-gray-500 text-white w-10 h-10 rounded-full hover:bg-gray-600 font-bold transition-all text-lg flex items-center justify-center"
+                >
+                  ◀
+                </button>
                 <button
                   onClick={() => {
                     const playerCount = gameSetup.selectedPlayers.length;
@@ -711,7 +720,7 @@ export default function NewGamePage() {
                       positionGroups: defaultGroups
                     }));
                   }}
-                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 font-bold transition-all text-lg flex items-center justify-center"
+                  className="bg-green-600 text-white w-10 h-10 rounded-full hover:bg-green-700 font-bold transition-all text-lg flex items-center justify-center"
                 >
                   ▶
                 </button>
