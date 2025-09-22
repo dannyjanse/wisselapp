@@ -228,8 +228,8 @@ export default function NewGamePage() {
                 <Image
                   src="/Logo.jpg"
                   alt="Wisselapp Logo"
-                  width={40}
-                  height={40}
+                  width={48}
+                  height={48}
                   className="object-contain"
                 />
               </Link>
@@ -265,13 +265,15 @@ export default function NewGamePage() {
                     onClick={() => togglePlayerSelection(player)}
                     className={`p-1 sm:p-2 rounded border text-left transition-all shadow-sm ${
                       isSelected
-                        ? 'bg-green-200 border-green-300 text-green-900'
+                        ? 'bg-green-100 border-green-300 text-green-900'
                         : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="font-bold text-sm sm:text-base">{player.name}</div>
-                      {isSelected && <div className="text-green-700 font-bold text-lg">✓</div>}
+                      <div className="text-green-700 font-bold text-lg w-6 text-center">
+                        {isSelected ? '✓' : ''}
+                      </div>
                     </div>
                   </button>
                 );

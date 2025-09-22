@@ -359,8 +359,8 @@ export default function LiveMatchPage() {
                 <Image
                   src="/Logo.jpg"
                   alt="Wisselapp Logo"
-                  width={40}
-                  height={40}
+                  width={48}
+                  height={48}
                   className="object-contain"
                 />
               </Link>

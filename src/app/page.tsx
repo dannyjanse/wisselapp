@@ -11,8 +11,8 @@ export default function Home() {
               <Image
                 src="/Logo.jpg"
                 alt="Wisselapp Logo"
-                width={40}
-                height={40}
+                width={48}
+                height={48}
                 className="object-contain"
               />
               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Wisselapp</h1>
