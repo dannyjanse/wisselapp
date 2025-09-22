@@ -271,8 +271,8 @@ export default function NewGamePage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="font-bold text-sm sm:text-base">{player.name}</div>
-                      <div className="text-green-700 font-bold text-lg w-6 text-center">
-                        {isSelected ? '✓' : ''}
+                      <div className={`font-bold text-lg w-6 text-center ${isSelected ? 'text-green-700' : 'text-transparent'}`}>
+                        ✓
                       </div>
                     </div>
                   </button>
