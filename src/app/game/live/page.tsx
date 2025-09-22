@@ -63,7 +63,7 @@ export default function LiveMatchPage() {
           half: 1 as 1 | 2,
           executedSubstitutions: [],
           playingTimes: initialPlayingTimes,
-          lastSubTime: 0
+          lastSubTime: Date.now()
         };
         setMatchState(initialState);
 
