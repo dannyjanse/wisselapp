@@ -313,7 +313,7 @@ export default function LiveMatchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-green-50 flex items-center justify-center">
         <div className="text-lg">Wedstrijd laden...</div>
       </div>
     );
@@ -321,7 +321,7 @@ export default function LiveMatchPage() {
 
   if (!matchState) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-green-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg mb-4">Geen wedstrijd gevonden</div>
           <Link href="/game/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
@@ -342,10 +342,10 @@ export default function LiveMatchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-green-50">
       <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4 sm:py-6 min-h-[80px]">
+          <div className="flex justify-between items-center py-2 sm:py-3 min-h-[60px]">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 href="/"
@@ -359,19 +359,19 @@ export default function LiveMatchPage() {
                 <Image
                   src="/Logo.jpg"
                   alt="Wisselapp Logo"
-                  width={32}
-                  height={32}
+                  width={40}
+                  height={40}
                   className="object-contain"
                 />
               </Link>
-              <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">Live Wedstrijd</h1>
+              <h1 className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">Live Wedstrijd</h1>
             </div>
 
             {/* Timer in Header */}
-            <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={resetMatchTimer}
-                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
+                className="text-gray-600 hover:text-gray-800 transition-all text-lg"
                 title="Reset timer (behoudt speeltijden)"
               >
                 🔄
@@ -379,17 +379,17 @@ export default function LiveMatchPage() {
               <div className="text-center">
                 <button
                   onClick={() => adjustMatchTime(1)}
-                  className="text-gray-600 hover:text-gray-800 transition-all text-sm mb-1 block mx-auto"
+                  className="text-gray-600 hover:text-gray-800 transition-all text-xs mb-0.5 block mx-auto"
                   title="Voeg 1 minuut toe"
                 >
                   +
                 </button>
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                   {formatTime(matchState.matchTime)}
                 </div>
                 <button
                   onClick={() => adjustMatchTime(-1)}
-                  className="text-gray-600 hover:text-gray-800 transition-all text-sm mt-1 block mx-auto"
+                  className="text-gray-600 hover:text-gray-800 transition-all text-xs mt-0.5 block mx-auto"
                   title="Trek 1 minuut af"
                 >
                   −
@@ -397,7 +397,7 @@ export default function LiveMatchPage() {
               </div>
               <button
                 onClick={toggleMatchTimer}
-                className="text-gray-600 hover:text-gray-800 transition-all text-xl"
+                className="text-gray-600 hover:text-gray-800 transition-all text-lg"
               >
                 {matchState.isMatchRunning ? '⏸️' : '▶️'}
               </button>
