@@ -41,10 +41,26 @@ export default function LiveMatchPage() {
   useEffect(() => {
     // Load match setup from localStorage
     const savedMatch = localStorage.getItem('currentMatch');
+    const savedMatchState = localStorage.getItem('liveMatchState');
+
     if (savedMatch) {
       try {
         const setup = JSON.parse(savedMatch);
-        // Initialize playing times for all selected players
+
+        // Check if we have saved live match state (for page refresh persistence)
+        if (savedMatchState) {
+          const existingState = JSON.parse(savedMatchState);
+          // Verify the saved state matches current match setup
+          if (existingState.selectedPlayers &&
+              existingState.selectedPlayers.length === setup.selectedPlayers.length &&
+              existingState.keeper1?.id === setup.keeper1?.id) {
+            setMatchState(existingState);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Initialize new match state
         const initialPlayingTimes: { [playerId: string]: number } = {};
         setup.selectedPlayers.forEach((player: Player) => {
           initialPlayingTimes[player.id] = 0;
@@ -74,6 +90,12 @@ export default function LiveMatchPage() {
     setLoading(false);
   }, []);
 
+  // Persist match state to localStorage
+  useEffect(() => {
+    if (matchState) {
+      localStorage.setItem('liveMatchState', JSON.stringify(matchState));
+    }
+  }, [matchState]);
 
   useEffect(() => {
     if (matchState?.isMatchRunning) {
@@ -331,6 +353,7 @@ export default function LiveMatchPage() {
                 onClick={() => {
                   localStorage.removeItem('gameSetup');
                   localStorage.removeItem('currentMatch');
+                  localStorage.removeItem('liveMatchState');
                 }}
               >
                 <Image
@@ -746,6 +769,7 @@ export default function LiveMatchPage() {
               onClick={() => {
                 // Clear match data and go back to step 4
                 localStorage.removeItem('currentMatch');
+                localStorage.removeItem('liveMatchState');
                 window.location.href = '/game/new';
               }}
               className="bg-gray-500 text-white w-10 h-10 rounded-full hover:bg-gray-600 font-bold transition-all text-lg flex items-center justify-center"

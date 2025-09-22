@@ -692,10 +692,10 @@ export default function NewGamePage() {
                     const defaultGroups: { [position: string]: 1 | 2 } = {
                       'keeper': 1,
                       'linksachter': 1,
-                      'linksvoor': 1,
+                      'rechtsachter': 1,
                       'substitute1': 1,
-                      'rechtsachter': 2,
                       'midden': 2,
+                      'linksvoor': 2,
                       'rechtsvoor': 2,
                       'substitute2': 2
                     };
