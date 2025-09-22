@@ -204,7 +204,7 @@ export default function NewGamePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center">
+      <div className="min-h-screen bg-green-200 flex items-center justify-center">
         <div className="text-lg">Laden...</div>
       </div>
     );
@@ -212,7 +212,7 @@ export default function NewGamePage() {
 
 
   return (
-    <div className="min-h-screen bg-green-50">
+    <div className="min-h-screen bg-green-200">
       <header className="bg-white shadow-lg border-b-2 border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4 sm:py-6 min-h-[80px]">
@@ -265,13 +265,13 @@ export default function NewGamePage() {
                     onClick={() => togglePlayerSelection(player)}
                     className={`p-1 sm:p-2 rounded border text-left transition-all shadow-sm ${
                       isSelected
-                        ? 'bg-blue-200 border-blue-400 text-blue-900'
+                        ? 'bg-green-200 border-green-400 text-green-900'
                         : 'bg-gray-100 border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="font-bold text-sm sm:text-base">{player.name}</div>
-                      {isSelected && <div className="text-blue-700 font-bold text-lg">✓</div>}
+                      {isSelected && <div className="text-green-700 font-bold text-lg">✓</div>}
                     </div>
                   </button>
                 );
@@ -281,7 +281,7 @@ export default function NewGamePage() {
             {players.length === 0 && (
               <div className="text-center text-sm sm:text-base text-gray-900 font-medium py-6 sm:py-8 bg-gray-50 rounded-lg">
                 Geen actieve spelers gevonden.
-                <Link href="/players" className="text-blue-600 hover:text-blue-700 ml-1 font-bold underline">
+                <Link href="/players" className="text-green-600 hover:text-green-700 ml-1 font-bold underline">
                   Voeg eerst spelers toe
                 </Link>
               </div>
@@ -302,16 +302,13 @@ export default function NewGamePage() {
               <div>
                 <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-gray-900">🥅 Keeper Eerste Helft</h3>
                 {gameSetup.keeper1 ? (
-                  <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
+                  <button
+                    onClick={() => setGameSetup(prev => ({ ...prev, keeper1: null }))}
+                    className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md w-full hover:bg-gray-200 transition-colors"
+                  >
                     <div className="font-bold text-gray-900 text-sm sm:text-base">{gameSetup.keeper1.name}</div>
                     {gameSetup.keeper1.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{gameSetup.keeper1.number}</div>}
-                    <button
-                      onClick={() => setGameSetup(prev => ({ ...prev, keeper1: null }))}
-                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 font-bold text-xs sm:text-sm mt-2"
-                    >
-                      Wijzigen
-                    </button>
-                  </div>
+                  </button>
                 ) : (
                   <div className="text-sm sm:text-base text-gray-700 font-medium border-2 border-dashed border-gray-400 rounded-lg p-3 sm:p-4 text-center bg-gray-50">
                     Selecteer een keeper
@@ -322,16 +319,13 @@ export default function NewGamePage() {
               <div>
                 <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-gray-900">🥅 Keeper Tweede Helft</h3>
                 {gameSetup.keeper2 ? (
-                  <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md">
+                  <button
+                    onClick={() => setGameSetup(prev => ({ ...prev, keeper2: null }))}
+                    className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3 sm:p-4 text-center shadow-md w-full hover:bg-gray-200 transition-colors"
+                  >
                     <div className="font-bold text-gray-900 text-sm sm:text-base">{gameSetup.keeper2.name}</div>
                     {gameSetup.keeper2.number && <div className="text-xs sm:text-sm text-gray-700 font-medium">#{gameSetup.keeper2.number}</div>}
-                    <button
-                      onClick={() => setGameSetup(prev => ({ ...prev, keeper2: null }))}
-                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 font-bold text-xs sm:text-sm mt-2"
-                    >
-                      Wijzigen
-                    </button>
-                  </div>
+                  </button>
                 ) : (
                   <div className="text-sm sm:text-base text-gray-700 font-medium border-2 border-dashed border-gray-400 rounded-lg p-3 sm:p-4 text-center bg-gray-50">
                     Selecteer een keeper
@@ -346,21 +340,24 @@ export default function NewGamePage() {
                 <button
                   key={player.id}
                   onClick={() => {
-                    if (!gameSetup.keeper1) {
-                      selectKeeper(player, 1);
-                    } else if (!gameSetup.keeper2 && player.id !== gameSetup.keeper1.id) {
-                      selectKeeper(player, 2);
+                    // If player is already selected as keeper, deselect them
+                    if (gameSetup.keeper1?.id === player.id) {
+                      setGameSetup(prev => ({ ...prev, keeper1: null }));
+                    } else if (gameSetup.keeper2?.id === player.id) {
+                      setGameSetup(prev => ({ ...prev, keeper2: null }));
+                    } else {
+                      // Select as keeper
+                      if (!gameSetup.keeper1) {
+                        selectKeeper(player, 1);
+                      } else if (!gameSetup.keeper2) {
+                        selectKeeper(player, 2);
+                      }
                     }
                   }}
-                  disabled={
-                    (!!gameSetup.keeper1 && !!gameSetup.keeper2) ||
-                    (gameSetup.keeper1?.id === player.id) ||
-                    (gameSetup.keeper2?.id === player.id)
-                  }
                   className={`p-2 sm:p-3 rounded-lg border-2 text-center transition-all shadow-md transform hover:scale-105 ${
                     gameSetup.keeper1?.id === player.id || gameSetup.keeper2?.id === player.id
-                      ? 'bg-yellow-200 border-yellow-400 text-yellow-900'
-                      : 'bg-white border-gray-300 hover:border-yellow-400 hover:bg-yellow-50 text-gray-900'
+                      ? 'bg-blue-200 border-blue-400 text-blue-900'
+                      : 'bg-white border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-900'
                   }`}
                 >
                   <div className="font-bold text-xs sm:text-sm">{player.name}</div>
@@ -415,6 +412,10 @@ export default function NewGamePage() {
                       const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
                       const canMove = !isKeeper;
 
+                      const keeperColorClasses = isKeeper
+                        ? 'bg-blue-500 border-blue-700'
+                        : 'bg-gray-600 border-gray-800';
+
                       return (
                         <div
                           key={`${position}-${player.id}`}
@@ -422,7 +423,7 @@ export default function NewGamePage() {
                           style={pos}
                           onClick={() => canMove && handlePlayerSwap(player.id, position)}
                         >
-                          <div className={`bg-gray-600 border-2 border-gray-800 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canMove ? 'hover:scale-110' : ''} ${
+                          <div className={`${keeperColorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow-lg transition-all ${canMove ? 'hover:scale-110' : ''} ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             swapMode.active && canMove ? 'hover:ring-2 hover:ring-yellow-300' : ''
@@ -456,13 +457,17 @@ export default function NewGamePage() {
                       const isFirstSelected = swapMode.firstPlayer?.playerId === player.id;
                       const isKeeper2 = player.id === gameSetup.keeper2?.id;
 
+                      const substituteColorClasses = isKeeper2
+                        ? 'bg-blue-500 border-blue-700'
+                        : 'bg-gray-600 border-gray-800';
+
                       return (
                         <div
                           key={playerId}
                           className={`text-center ${!isKeeper2 ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                           onClick={() => !isKeeper2 && handlePlayerSwap(player.id, 'substitute')}
                         >
-                          <div className={`bg-gray-600 border-2 border-gray-800 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
+                          <div className={`${substituteColorClasses} border-2 rounded-full w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center text-xs font-bold text-white shadow mx-auto transition-all ${!isKeeper2 ? 'hover:scale-110' : ''} ${
                             isFirstSelected ? 'ring-4 ring-yellow-400 ring-opacity-75' : ''
                           } ${
                             swapMode.active && !isKeeper2 ? 'hover:ring-2 hover:ring-yellow-300' : ''
@@ -626,7 +631,7 @@ export default function NewGamePage() {
                       setGameSetup(prev => ({ ...prev, step: 'select-keepers' }));
                     }
                   }}
-                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 font-bold transition-all text-lg flex items-center justify-center"
+                  className="bg-green-600 text-white w-10 h-10 rounded-full hover:bg-green-700 font-bold transition-all text-lg flex items-center justify-center"
                 >
                   ▶
                 </button>
@@ -671,7 +676,7 @@ export default function NewGamePage() {
                     }));
                   }}
                   disabled={!gameSetup.keeper1 || !gameSetup.keeper2}
-                  className="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-lg flex items-center justify-center"
+                  className="bg-green-600 text-white w-10 h-10 rounded-full hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-bold transition-all text-lg flex items-center justify-center"
                 >
                   ▶
                 </button>
