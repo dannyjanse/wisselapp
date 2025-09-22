@@ -1,4 +1,4 @@
-# App Logica - Wisselapp (Actuele Implementatie)
+# App Logica - Wisselapp
 
 ## Algemeen overzicht
 
@@ -247,19 +247,58 @@ Enums: GameStatus (SETUP, ACTIVE, PAUSED, FINISHED)
 - **Database migrations**: Automatisch via Railway build process
 - **State persistence**: LocalStorage kritiek voor user experience continuity
 
-## Key Differences from Original Design
+## Posities & Veld Layout
 
-### Simplified Wissel Logic
-- **Geen automatische 5-minuten rotaties**: Coach bepaalt wanneer te wisselen
-- **Geen complexe rotatie algoritmes**: Simpele fairness based wissel suggesties
-- **Manuele controle**: Coach heeft volledige controle over alle wissels
+### Veld Posities (6 actief)
+- **keeper**: Doelman (🥅)
+- **linksachter**: Linker verdediger (LA)
+- **rechtsachter**: Rechter verdediger (RA)
+- **midden**: Middenveld speler (M)
+- **linksvoor**: Linker aanvaller (LV)
+- **rechtsvoor**: Rechter aanvaller (RV)
 
-### Praktische Focus
-- **Real-world usage**: Gebouwd voor echte coaching situaties
-- **Flexibiliteit**: Handmatige override van alle automatische suggesties
-- **Eenvoud**: Intuïtieve interface zonder complexe regels
+### Bank Posities (2 wisselspelers)
+- **wissel1**: Eerste wisselspeler (W)
+- **wissel2**: Tweede wisselspeler (W)
 
-### Modern Tech Implementation
-- **Real-time updates**: Live timer en speeltijd tracking
-- **Mobile responsive**: Optimaal voor sideline gebruik
-- **Data persistence**: Robuuste state management tussen page refreshes
+### Veld Visualisatie Mapping
+```javascript
+positions = {
+  'keeper': { bottom: '4%', left: '50%', transform: 'translate(-50%, 0)', label: '🥅' },
+  'linksachter': { bottom: '20%', left: '15%', label: 'LA' },
+  'rechtsachter': { bottom: '20%', right: '15%', label: 'RA' },
+  'midden': { top: '45%', left: '50%', transform: 'translate(-50%, -50%)', label: 'M' },
+  'linksvoor': { top: '8%', left: '15%', label: 'LV' },
+  'rechtsvoor': { top: '8%', right: '15%', label: 'RV' }
+}
+```
+
+## Match Flow Scenario
+
+### Typische Wedstrijd Flow
+1. **Pre-match**: 4-step setup wizard → database opslag
+2. **Match start**: Timer start, speeltijd tracking begin
+3. **Ongoing**: Mix van handmatige en voorgestelde wissels
+4. **Halftime**: Handmatige keeper switch (optional)
+5. **Match end**: Final statistics en wedstrijd afsluiting
+
+### Wissel Decision Tree
+```
+Speler click →
+├── substituteMode active?
+│   ├── Yes → Execute wissel binnen groep
+│   └── No → Activate substituteMode
+├── swapMode active? (alleen veldspelers)
+│   ├── Yes → Position swap binnen groep
+│   └── No → Start nieuwe mode
+└── Suggestion button → Automatic algoritme wissel
+```
+
+### Data Flow Summary
+```
+LocalStorage (persistence) ↔
+Live State (runtime) ↔
+Database (permanent) ↔
+API Routes (CRUD) ↔
+UI Components (display)
+```
