@@ -592,7 +592,7 @@ export default function LiveMatchPage() {
 
                                 // Calculate current playing times
                                 const now = Date.now();
-                                const timeDiff = (now - prev.lastSubTime) / 1000;
+                                const timeDiff = Math.floor((now - prev.lastSubTime) / 1000);
 
                                 // Update playing times for current field players before substitution
                                 const updatedPlayingTimes = { ...prev.playingTimes };
@@ -686,7 +686,7 @@ export default function LiveMatchPage() {
 
                                 // Calculate current playing times
                                 const now = Date.now();
-                                const timeDiff = (now - prev.lastSubTime) / 1000;
+                                const timeDiff = Math.floor((now - prev.lastSubTime) / 1000);
 
                                 // Update playing times for current field players before substitution
                                 const updatedPlayingTimes = { ...prev.playingTimes };
