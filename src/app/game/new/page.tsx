@@ -190,6 +190,21 @@ export default function NewGamePage() {
           return prev;
         }
 
+        // Don't allow keeper2 (substitute) to be moved from group 1
+        // Check if this substitute position contains keeper2
+        const substitutePlayers = Object.keys(prev.playerPositions)
+          .filter(pid => prev.playerPositions[pid] === 'substitute')
+          .map(pid => prev.selectedPlayers.find(p => p.id === pid))
+          .filter(p => p !== undefined);
+
+        if (position.startsWith('substitute')) {
+          const index = parseInt(position.replace('substitute', '')) - 1;
+          const playerAtPosition = substitutePlayers[index];
+          if (playerAtPosition?.id === prev.keeper2?.id && newGroup === 2) {
+            return prev;
+          }
+        }
+
         return {
           ...prev,
           positionGroups: {
@@ -705,16 +720,36 @@ export default function NewGamePage() {
                 </button>
                 <button
                   onClick={() => {
+                    // Find which substitute position contains keeper2
+                    const substitutePlayers = Object.keys(gameSetup.playerPositions)
+                      .filter(pid => gameSetup.playerPositions[pid] === 'substitute')
+                      .map(pid => gameSetup.selectedPlayers.find(p => p.id === pid))
+                      .filter(p => p !== undefined);
+
+                    let keeper2SubstitutePosition = 'substitute1'; // default
+                    substitutePlayers.forEach((player, index) => {
+                      if (player?.id === gameSetup.keeper2?.id) {
+                        keeper2SubstitutePosition = `substitute${index + 1}`;
+                      }
+                    });
+
                     const defaultGroups: { [position: string]: 1 | 2 } = {
                       'keeper': 1,
                       'linksachter': 1,
                       'rechtsachter': 1,
-                      'substitute1': 1,
                       'midden': 2,
                       'linksvoor': 2,
-                      'rechtsvoor': 2,
-                      'substitute2': 2
+                      'rechtsvoor': 2
                     };
+
+                    // Assign substitute positions - keeper2 always goes to group 1
+                    if (keeper2SubstitutePosition === 'substitute1') {
+                      defaultGroups['substitute1'] = 1;
+                      defaultGroups['substitute2'] = 2;
+                    } else {
+                      defaultGroups['substitute1'] = 2;
+                      defaultGroups['substitute2'] = 1; // keeper2 in group 1
+                    }
 
                     setGameSetup(prev => ({
                       ...prev,
